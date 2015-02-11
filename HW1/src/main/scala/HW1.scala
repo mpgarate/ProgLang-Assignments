@@ -148,8 +148,8 @@ object HW1 extends js.util.JsApp {
     case Node (Empty, d, Empty) if (d == n) => Empty
     case Node(Empty, d, r) if (d == n) => r
     case Node(l, d, Empty) if (d == n) => l
+    case Node (l, d ,r) if (d==n) => Node(l, getValue(r), getRightSubTree(r))
     case Empty => Empty //base case
-    case Node (l, d ,r) if (d==n) => Node(l, getValue(r), getRightSubTree(r))    
     
     //PERCOLATE
   }
