@@ -92,13 +92,42 @@ object HW1 extends js.util.JsApp {
   }
   
   def sqrtStep(c: Double, xn: Double): Double = {
-    xn*((xn*xn-c)/2*xn)
+    xn - (((xn * xn) - c) / (2 * xn))
   }
 
-  def sqrtN(c: Double, x0: Double, n: Int): Double = ???
+  def sqrtN(c: Double, x0: Double, n: Int): Double = {
+    require(n >= 0)
+
+    if (n == 0){
+      return x0
+    }
+
+    def getSqrt(c: Double, x: Double, n: Int): Double = {
+      if (n == 1){
+        return sqrtStep(c, x)
+      }
+      return getSqrt(c, sqrtStep(c, x), n - 1)
+    }
+
+    getSqrt(c, x0, n)
+  }
   
-  def sqrtErr(c: Double, x0: Double, epsilon: Double): Double =
-    ???
+  def sqrtErr(c: Double, x0: Double, epsilon: Double): Double = {
+    require(epsilon > 0)
+
+    def errorIsWithinEpsilon(c: Double, x: Double, epsilon: Double): Boolean = {
+      return abs((x * x) - c) < epsilon
+    }
+
+    def getSqrt(c: Double, x: Double, epsilon: Double): Double = {
+      if (errorIsWithinEpsilon(c, x, epsilon)){
+        return x
+      }
+      return getSqrt(c, sqrtStep(c, x), epsilon)
+    }
+
+    getSqrt(c, x0, epsilon)
+  }
 
   def sqrt(c: Double): Double = {
     require(c >= 0)
