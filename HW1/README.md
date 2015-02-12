@@ -17,3 +17,19 @@ x at line 10 is bound at line 5
 x at line 13 is bound at line 1
 ```
 
+## Problem 3
+
+```
+a:Int                       because
+                            1:Int
+
+b:(Int, Int)                because
+                            x: Int
+                            3: Int
+
+(b, 1):((Int, Int), Int)    because
+                            b: (Int, Int)
+                            1: Int
+(b, a + 2): ((Int, Int))
+  
+```
