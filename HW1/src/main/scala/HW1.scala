@@ -83,12 +83,12 @@ object HW1 extends js.util.JsApp {
 
   def repeat(s: String, n: Int): String = {
     require(n>=0)
+
     if (n > 0)
       s + repeat(s, n-1)
     else {
       ""
     }
-    //else if (n < 0) throw exception 
   }
   
   def sqrtStep(c: Double, xn: Double): Double = {
@@ -143,21 +143,21 @@ object HW1 extends js.util.JsApp {
   def repOk(t: BSTree): Boolean = {
     def check(t: BSTree, min: Int, max: Int): Boolean = t match {
       case Empty => true
-      case Node(l, d, r) => if ((d > max)||(d < min)) false else check(l, min, d) && check(r, d, max)
-      
+      case Node(l, d, r) => {
+        if ((d > max) || (d < min)) false
+        else check(l, min, d) && check(r, d, max)
+      }
     }
     check(t, Int.MinValue, Int.MaxValue)
   }
   
   def insert(t: BSTree, n: Int): BSTree = t match {
-    //traverse B-tree and once find the place, create new tree and return in
-    case Node (Empty, d, Empty) =>
-      if (n >= d) Node(Empty ,d , Node(Empty, n, Empty))
-      else Node( Node(Empty, n, Empty) ,d, Empty)
-    case Node (l,d,r) => 
-      if (n < d) Node(insert(l, n),d ,r)
-      else Node(l, d, insert (r, n))
     case Empty => Node(Empty, n, Empty)
+    case Node(l, d, r) => {
+      if (n == d) return Node(l, d, insert(r, n))
+      else if (n < d) return Node(insert(l, n), d, r)
+      else return Node(l, d, insert(r, n))
+    }
   }
   
   def deleteMin(t: BSTree): (BSTree, Int) = {
@@ -166,21 +166,18 @@ object HW1 extends js.util.JsApp {
       case Node(Empty, d, r) => (r, d)
       case Node(l, d, r) =>
         val (l1, m) = deleteMin(l)
-        //can't do l1.l because doesn't know whether it's empty
         (Node (l1, d, r), m)
     }
   }
  
   def delete(t: BSTree, n: Int): BSTree = t match {
+    case Empty => Empty //base case
     case Node (l, d, r) if (n < d) => Node (delete(l, n), d, r)
     case Node (l, d, r) if (n > d) => Node (l, d, delete(r, n))
     case Node (Empty, d, Empty) if (d == n) => Empty
     case Node(Empty, d, r) if (d == n) => r
     case Node(l, d, Empty) if (d == n) => l
-    case Empty => Empty //base case
     case Node (l, d ,r) if (d==n) => Node(l, getValue(r), getRightSubTree(r))    
-    
-    //PERCOLATE
   }
   
   //will never be called on Empty
@@ -201,27 +198,12 @@ object HW1 extends js.util.JsApp {
   
   //implementing the expression tree
   
-  //do we need to call eval() recursively?
   def eval(e: Expr): Double = e match {
-//    case Num(n) => ???
-//    case _ => ???
     case Num(n) => n
-    
-//    case UnOp(op, Num(n)) => -n
-//    case BinOp(Plus, Num(n), Num(y)) => n+y
-//    case BinOp(Minus, Num(n), Num(y)) => n-y
-//    case BinOp(Times, Num(n), Num(y)) => n*y
-//    case BinOp(Div, Num(n), Num(y)) if (y!=0) => n/y
-//    case BinOp(Div, Num(n), Num(y)) if (y==0 && n>0) => Double.PositiveInfinity
-//    case BinOp(Div, Num(n), Num(y)) if (y==0 && n<0) => Double.NegativeInfinity
-    
-    //recursive part
+
     case BinOp(Plus, exp1, exp2) => eval(exp1) + eval(exp2)
     case BinOp(Minus, exp1, exp2) => eval(exp1) - eval(exp2)
     case BinOp(Times, exp1, exp2) => eval(exp1) * eval(exp2)
-//    case BinOp(Div, exp1, exp2) if (eval(exp2) != 0) => eval(exp1) / eval(exp2)
-//    case BinOp(Div, exp1, exp2) if (eval(exp2) == 0 && eval(exp1) >= 0 ) => Double.PositiveInfinity
-//    case BinOp(Div, exp1, exp2) if (eval(exp2) == 0 && eval(exp1) < 0 ) => Double.NegativeInfinity
     case UnOp(op, a @ BinOp(_ , _ ,_)) => -eval(a)
     case BinOp(Div, exp1, exp2) => div(exp1, eval(exp2))
     case UnOp(op, a) => -eval(a)
