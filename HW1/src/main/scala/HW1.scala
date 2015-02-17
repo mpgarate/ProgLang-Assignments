@@ -8,7 +8,7 @@ object HW1 extends js.util.JsApp {
    * CSCI-UA.0480-006: Homework 1
    * <Jesse Lifshitz>
    * 
-   * Partner: <Your Partner's Name>
+   * Partner: <Michael Garate>
    * Collaborators: <Any Collaborators>
    */
 
