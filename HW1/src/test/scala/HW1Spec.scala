@@ -201,6 +201,7 @@ class HW1Spec extends FlatSpec {
     assert(eval("-(4 / 4 + 2 * 2)") === -5)
     //should still be negative bc applying the unary operator last
     assert(eval("-(4 / 4 + 2 * 2 + 6 )/0") === Double.NegativeInfinity) 
+    assert(eval("-(4 / 4 + 2 * 2 + 6 )*-3-(20+10)/(3+22+(-20-2))") === 23)
   }
   
 }
