@@ -46,6 +46,7 @@ b:(Int, Int)                    because
                                 b:(Int, Int)
                                 a:Int
                                 2:Int
+                                _ + _:(Int, Int) => Int
 
 ```
 ``g()`` is well-typed because
