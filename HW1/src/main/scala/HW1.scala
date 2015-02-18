@@ -6,9 +6,9 @@ object HW1 extends js.util.JsApp {
   
   /*
    * CSCI-UA.0480-006: Homework 1
-   * <Jesse Lifshitz>
+   * Michael Garate
    * 
-   * Partner: <Michael Garate>
+   * Partner: Jesse Lifshitz
    * Collaborators: <Any Collaborators>
    */
 
@@ -77,9 +77,7 @@ object HW1 extends js.util.JsApp {
 
   def abs(n: Double): Double = if (n<0) -n else n
 
-  
   def swap(p: (Int, Int)): (Int, Int) = (p._2,p._1)
-
 
   def repeat(s: String, n: Int): String = {
     require(n>=0)
@@ -171,7 +169,7 @@ object HW1 extends js.util.JsApp {
   }
  
   def delete(t: BSTree, n: Int): BSTree = t match {
-    case Empty => Empty //base case
+    case Empty => Empty 
     case Node (l, d, r) if (n < d) => Node (delete(l, n), d, r)
     case Node (l, d, r) if (n > d) => Node (l, d, delete(r, n))
     case Node (Empty, d, Empty) if (d == n) => Empty
@@ -180,23 +178,16 @@ object HW1 extends js.util.JsApp {
     case Node (l, d ,r) if (d==n) => Node(l, getValue(r), getRightSubTree(r))    
   }
   
-  //will never be called on Empty
+  // will never be called on Empty
   def getValue(t:BSTree): Int = t match{
     case Node(Empty, d, Empty) => d
   }
   def getRightSubTree(t:BSTree):BSTree = t match {
     case Node (l, d , r) => r
   }
-  //always choose the right one
   
-//  def percolate (t: BSTree): BSTree = t match{
-//    
-//    case Node(l, _, r) => Node(l, r.d, percolate(r)) 
-//  }
-  
+
   /* JakartaScript */
-  
-  //implementing the expression tree
   
   def eval(e: Expr): Double = e match {
     case Num(n) => n
