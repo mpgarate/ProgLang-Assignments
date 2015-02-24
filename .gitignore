@@ -20,6 +20,7 @@ project/plugins/project/
 */.settings/
 */.metadata/
 */.cache/
+*.cache
 
 
 .DS_Store
