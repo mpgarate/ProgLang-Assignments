@@ -60,15 +60,30 @@ object HW2 extends js.util.JsApp {
     require(isValue(v))
     (v: @unchecked) match {
       case Num(n) => n
-      case _ => ???
-    }
+      case Bool(true) => 1
+      case Bool(false) => 0
+      case Str(s) => {
+        try {
+          return s.toDouble
+        } catch {
+          case e: NumberFormatException => // silently ignore
+        }
+
+        return Double.NaN
+      }
+      case Undefined => Double.NaN
+    } 
   }
   
   def toBool(v: Expr): Boolean = {
     require(isValue(v))
     (v: @unchecked) match {
       case Bool(b) => b
-      case _ => ???
+      case Num(0) => false
+      case Num(n) => true
+      case Str("") => false
+      case Str(s) => true
+      case Undefined => false
     }
   }
   
@@ -77,21 +92,56 @@ object HW2 extends js.util.JsApp {
     (v: @unchecked) match {
       case Str(s) => s
       case Undefined => "undefined"
-      case _ => ???
+      case Bool(false) => "false"
+      case Bool(true) => "true"
+      case Num(n) => n.toString
     }
   }
   
   def eval(env: Env, e: Expr): Expr = {
     /* Some helper functions for convenience. */
     def eToVal(e: Expr): Expr = eval(env, e)
-
     e match {
       /* Base Cases */
+      case Bool(_) => e
+      case Num(_) => e
       
       /* Inductive Cases */
       case Print(e) => println(pretty(eToVal(e))); Undefined
+      
+      case BinOp(And, e1, e2) => { 
+        val b1 = toBool(eToVal(e1))
+        if (false == b1) return e1
+        else return e2
+      }
 
-      case _ => ???
+      case BinOp(Or, e1, e2) => {
+        val b1 = toBool(eToVal(e1))
+        if (true == b1) return e1
+        else return e2
+      }
+      
+      case BinOp(Plus, e1, e2) => {
+        val lVal = eToVal(e1)
+        val rVal = eToVal(e2)
+        (lVal, rVal) match {
+          case (Str(s1), val2) => {
+            // TODO: add test cast for string concatenation 
+            Str("%s%s" format(s1, toStr(val2)))
+          }
+          case _ => Num(toNum(lVal) + toNum(rVal))
+        }
+      }
+      
+      case BinOp(Minus, e1, e2) => {
+        val lNum = toNum(eToVal(e1))
+        val rNum = toNum(eToVal(e2))
+        Num(lNum - rNum)
+      }
+      
+      case UnOp(Not, e) => {
+        return Bool(true != toBool(eToVal(e)))
+      }
     }
   }
     
