@@ -96,7 +96,7 @@ object HW2 extends js.util.JsApp {
       case Num(n)      => n.toString
     }
   }
-  
+
   /**
    * http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6
    */
@@ -105,7 +105,7 @@ object HW2 extends js.util.JsApp {
     case (Num(n1), Num(n2)) => (v1, v2) match {
       case (Num(Double.NaN), _) => false
       case (_, Num(Double.NaN)) => false
-      case(_, _) => n1 == n2
+      case (_, _)               => n1 == n2
     }
     case (Str(s1), Str(s2)) => {
       s1 == s2
@@ -119,15 +119,37 @@ object HW2 extends js.util.JsApp {
   def eval(env: Env, e: Expr): Expr = {
     /* Some helper functions for convenience. */
     def eToVal(e: Expr): Expr = eval(env, e)
+
     e match {
       /* Base Cases */
-      case Bool(_) => e
-      case Num(_)  => e
+      case Bool(_)   => e
+      case Num(_)    => e
+      case Str(_)    => e
+      case Var(x)    => get(env, x)
       case Undefined => Undefined
 
       /* Inductive Cases */
       case Print(e) =>
         println(pretty(eToVal(e))); Undefined
+
+      case ConstDecl(x, e1, e2) => {
+        val xVal = eToVal(e1)
+        extend(env, x, xVal)
+        eToVal(e2)
+      }
+      
+      case If(e1, e2, e3) => {
+        if (toBool(eToVal(e1))){
+          eToVal(e2)
+        } else {
+          eToVal(e3)
+        }
+      }
+      
+      case BinOp(Seq, e1, e2) => {
+          eToVal(e1)
+          eToVal(e2)
+      }
 
       case BinOp(And, e1, e2) => {
         val b1 = toBool(eToVal(e1))
@@ -200,7 +222,7 @@ object HW2 extends js.util.JsApp {
       case UnOp(Not, e) => {
         Bool(true != toBool(eToVal(e)))
       }
-      
+
       case UnOp(UMinus, e) => {
         Num(-toNum(eToVal(e)))
       }
@@ -208,7 +230,10 @@ object HW2 extends js.util.JsApp {
   }
 
   // Interface to run your interpreter starting from an empty environment.
-  def eval(e: Expr): Expr = eval(emp, e)
+  def eval(e: Expr): Expr = {
+    
+    eval(this.emp, e)
+  }
 
   // Interface to run your interpreter from a string.  This is convenient
   // for unit testing.
