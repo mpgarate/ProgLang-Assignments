@@ -39,7 +39,7 @@ object HW2 extends js.util.JsApp {
    */
 
   type Env = Map[String, Expr]
-  val emp: Env = Map()
+  def emp: Env = Map()
   def get(env: Env, x: String): Expr = env(x)
   def extend(env: Env, x: String, v: Expr): Env = {
     require(isValue(v))
@@ -134,8 +134,8 @@ object HW2 extends js.util.JsApp {
 
       case ConstDecl(x, e1, e2) => {
         val xVal = eToVal(e1)
-        extend(env, x, xVal)
-        eToVal(e2)
+        val newEnv = extend(env, x, xVal)
+        eval(newEnv, e2)
       }
       
       case If(e1, e2, e3) => {
@@ -230,10 +230,7 @@ object HW2 extends js.util.JsApp {
   }
 
   // Interface to run your interpreter starting from an empty environment.
-  def eval(e: Expr): Expr = {
-    
-    eval(this.emp, e)
-  }
+  def eval(e: Expr): Expr = eval(emp, e)
 
   // Interface to run your interpreter from a string.  This is convenient
   // for unit testing.
