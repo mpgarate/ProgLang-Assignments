@@ -97,25 +97,6 @@ object HW2 extends js.util.JsApp {
     }
   }
 
-  /**
-   * http://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6
-   */
-  def strictEquality(v1: Expr, v2: Expr): Boolean = (v1, v2) match {
-    case (Undefined, _) => true
-    case (Num(n1), Num(n2)) => (v1, v2) match {
-      case (Num(Double.NaN), _) => false
-      case (_, Num(Double.NaN)) => false
-      case (_, _)               => n1 == n2
-    }
-    case (Str(s1), Str(s2)) => {
-      s1 == s2
-    }
-    case (Bool(b1), Bool(b2)) => {
-      b1 == b2
-    }
-    case (_, _) => false
-  }
-
   def eval(env: Env, e: Expr): Expr = {
     /* Some helper functions for convenience. */
     def eToVal(e: Expr): Expr = eval(env, e)
@@ -152,14 +133,16 @@ object HW2 extends js.util.JsApp {
       }
 
       case BinOp(And, e1, e2) => {
-        val b1 = toBool(eToVal(e1))
-        if (false == b1) return eToVal(e1)
+        val v1 = eToVal(e1)
+        val b1 = toBool(v1)
+        if (false == b1) return v1
         else return eToVal(e2)
       }
 
       case BinOp(Or, e1, e2) => {
-        val b1 = toBool(eToVal(e1))
-        if (true == b1) return eToVal(e1)
+        val v1 = eToVal(e1)
+        val b1 = toBool(v1)
+        if (true == b1) return v1
         else return eToVal(e2)
       }
 
@@ -196,7 +179,7 @@ object HW2 extends js.util.JsApp {
       }
 
       case BinOp(Eq, e1, e2) => {
-        Bool(strictEquality(eToVal(e1), eToVal(e2)))
+        Bool(eToVal(e1) == eToVal(e2))
       }
 
       case BinOp(Ne, e1, e2) => {
