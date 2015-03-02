@@ -12,6 +12,16 @@ class AndOrSpec extends FlatSpec {
     assert(eval(BinOp(And,f,t)) === f)
     assert(eval(BinOp(And,f,f)) === f)
   } 
+  "And J" should "return false here" in {
+    val t = Bool(true)
+    val f = Bool(false)
+    assert(eval (BinOp(And, t, BinOp(And, t, t))) === t);
+  }
+  "And Or J" should "return false here" in {
+    val t = Bool(true)
+    val f = Bool(false)
+    assert(eval (BinOp(And, t, BinOp(Or, f, t))) === t);
+  }
  
   "And" should "return non-intuitive results from differing types" in {
     val e1 = Num(0)
@@ -222,7 +232,13 @@ class IfSpec extends FlatSpec {
     val e2 = BinOp(Plus, Num(1), Num(1))
     val e3 = eval(If(Bool(false), e1, e2)) 
     assert(e3 === Num(2))
-  } 
+  }
+  "If J" should "eval the first expression if the conditional is true" in {
+    val e2 = BinOp(Plus, Num(3), BinOp(Minus, Num(2),Num(1)))
+    val e1 = BinOp(Plus, Num(1), Num(1))
+    val e3 = eval(If(BinOp(And,Bool(true), Bool(false)), e1, e2)) 
+    assert(e3 === Num(4))
+  }
   
 }
 
@@ -251,6 +267,15 @@ class UnOpSpec extends FlatSpec {
     val e3 = eval(UnOp(Not, e1))
     val e4 = eval(UnOp(Not, e2))
     assert(e3 === Bool(false))
+    assert(e4 === Bool(true))
+  }
+  
+  "Not J" should "return the compliment of a boolean value" in {
+    val e1 = Bool(true)
+    val e2 = Bool(false)
+    val e3 = eval(UnOp(Not,BinOp(And, Num(0), Num(199))))
+    val e4 = eval(UnOp(Not, e2))
+    assert(e3 === Bool(true))
     assert(e4 === Bool(true))
   }
 }

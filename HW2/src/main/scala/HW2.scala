@@ -153,14 +153,14 @@ object HW2 extends js.util.JsApp {
 
       case BinOp(And, e1, e2) => {
         val b1 = toBool(eToVal(e1))
-        if (false == b1) return e1
-        else return e2
+        if (false == b1) return eToVal(e1)
+        else return eToVal(e2)
       }
 
       case BinOp(Or, e1, e2) => {
         val b1 = toBool(eToVal(e1))
-        if (true == b1) return e1
-        else return e2
+        if (true == b1) return eToVal(e1)
+        else return eToVal(e2)
       }
 
       case BinOp(Plus, e1, e2) => {
@@ -220,7 +220,7 @@ object HW2 extends js.util.JsApp {
       }
 
       case UnOp(Not, e) => {
-        Bool(true != toBool(eToVal(e)))
+        Bool(!toBool(eToVal(e)))
       }
 
       case UnOp(UMinus, e) => {
