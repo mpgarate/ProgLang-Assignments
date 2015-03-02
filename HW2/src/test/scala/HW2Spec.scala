@@ -215,7 +215,15 @@ class ConstSpec extends FlatSpec {
     val e3 = eval(ConstDecl("x", e1, e2)) 
     assert(e3 === Num(4))
   } 
-  
+  "ConstDecl J" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
+    val e1 = ConstDecl("y", BinOp(Plus, Num(1), Num(5)), BinOp(Plus, Var("y"), Num(1)))
+    val e2 = BinOp(Plus, Var("x"), BinOp(Times, Num(2), Num(3)))
+    val e3 = eval(ConstDecl("x", e1, e2))
+    print("Var followed by e3")
+    print(Var("x"))
+    print(e3) //not sure what the correct answer should be
+    assert(e3 === Num(13))
+  } 
 }
 
 class IfSpec extends FlatSpec {
