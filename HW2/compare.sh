@@ -2,8 +2,6 @@
 
 FILE=$1
 
-echo "got here: $FILE";
-
 echo "====== node ======"
 node "$FILE";
 
