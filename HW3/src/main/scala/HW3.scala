@@ -169,8 +169,18 @@ object HW3 extends js.util.JsApp {
       
       case ConstDecl(x, e1, e2) => eval(extend(env, x, eToVal(e1)), e2)
       
-      case Function(p, x, e1) => ???
-      case Call(e1, e2) => ???
+      case Call(e1, e2) => {
+        val v1 = eToVal(e1)
+        val v2 = eToVal(e2)
+        
+        v1 match {
+          case Function(p, x, e_1) => {
+            val newEnv = extend(env, x, v2)
+            return eval(newEnv, e_1)
+          }
+          case _ => throw DynamicTypeError(e)
+        }
+      }
     }
   }
     
