@@ -174,9 +174,11 @@ object HW3 extends js.util.JsApp {
         val v2 = eToVal(e2)
         
         v1 match {
-          case Function(p, x, e_1) => {
-            val newEnv = extend(env, x, v2)
-            return eval(newEnv, e_1)
+          case Function(None, x, e_1) => {
+            eval(extend(env, x, v2), e_1)
+          }
+          case Function(Some(x1), x2, e_1) => {
+            eval(extend(extend(env, x1, v1), x2, v2), e_1)
           }
           case _ => throw DynamicTypeError(e)
         }
