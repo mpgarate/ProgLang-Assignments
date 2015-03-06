@@ -133,7 +133,26 @@ object HW3 extends js.util.JsApp {
       case BinOp(Times, e1, e2) => Num(eToNum(e1) * eToNum(e2))
       case BinOp(Div, e1, e2) => Num(eToNum(e1) / eToNum(e2))
       
-      case BinOp(bop @ (Eq | Ne), e1, e2) => ???
+      case BinOp(bop @ (Eq | Ne), e1, e2) => {
+        
+        def ensureNotFunction(value: Expr): Unit = value match {
+          case Function(p, x, e_1) => {
+            throw DynamicTypeError(e)
+          }
+          case _ => return
+        }
+        
+        val v1 = eToVal(e1)
+        ensureNotFunction(v1)
+        
+        val v2 = eToVal(e2)
+        ensureNotFunction(v2)
+        
+        bop match {
+          case Eq => return Bool(v1 == v2)
+          case Ne => return Bool(v1 != v2)
+        }
+      }
       case BinOp(bop @ (Lt | Le | Gt | Ge), e1, e2) => 
         Bool(inequalityVal(bop, eToVal(e1), eToVal(e2)))
       
@@ -150,7 +169,8 @@ object HW3 extends js.util.JsApp {
       
       case ConstDecl(x, e1, e2) => eval(extend(env, x, eToVal(e1)), e2)
       
-      case _ => ???
+      case Function(p, x, e1) => ???
+      case Call(e1, e2) => ???
     }
   }
     
