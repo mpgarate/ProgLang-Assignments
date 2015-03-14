@@ -136,7 +136,7 @@ object HW3 extends js.util.JsApp {
       case BinOp(bop @ (Eq | Ne), e1, e2) => {
         
         def ensureNotFunction(value: Expr): Unit = value match {
-          case Function(p, x, e_1) => {
+          case Function(_, _, _) => {
             throw DynamicTypeError(e)
           }
           case _ => return
@@ -185,8 +185,15 @@ object HW3 extends js.util.JsApp {
       }
     }
   }
-    
 
+  
+  def isFunction(e: Expr): Boolean = {
+    e match {
+      case Function(_, _, _) => true
+      case _ => false
+    }
+  }
+  
   /* Small-Step Interpreter with Static Scoping */
   
   def substitute(e: Expr, x: String, v: Expr): Expr = {
@@ -197,8 +204,32 @@ object HW3 extends js.util.JsApp {
     /* Body */
     e match {
       case Num(_) | Bool(_) | Undefined | Str(_) => e
+      // SearchPrint
       case Print(e1) => Print(subst(e1))
-      case _ => ???
+      // SearchBop2, although what does the bar over the arrow mean?
+      case BinOp(bop @ (
+          Plus | Minus | Times | Div | Lt | Le | Gt | Ge
+          ), v1, e2) if isValue(v1) => {
+        BinOp(bop, v1, subst(e2))
+      }
+      // SearchBop1
+      case BinOp(bop @ (Seq | And | Or), e1, e2) => {
+        BinOp(bop, subst(e1), e2)
+      }
+      // SearchEqual
+      case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
+        BinOp(bop, v1, subst(e2))
+      }
+      // SearchUop
+      case UnOp(uop, e1) => UnOp(uop, subst(e1))
+      // SearchIf
+      case If(e1, e2, e3) => If(subst(e1), e2, e3)
+      // SearchConst
+      case ConstDecl(x, e1, e2) => ConstDecl(x, subst(e1), e2)
+      // SearchCall2
+      case Call(e1, e2) if isValue(e1) => Call(e1, subst(e2))
+      // SearchCall1
+      case Call(e1, e2) => Call(subst(e1), e2)
     }
   }
     
