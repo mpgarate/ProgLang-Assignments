@@ -239,26 +239,31 @@ object HW3 extends js.util.JsApp {
       case Print(v1) if isValue(v1) => println(v1.prettyVal); Undefined
       
         // ****** Your cases here
-      case BinOp (bop, Num(v1), Num(v2)) => bop match{
-        case Plus => Num(v1 + v2);
-        case Minus => Num (v1 - v2);
-        case Times => Num(v1 * v2);
-        case Div => Num(v1 / v2);
-        //not short circuit ATM
-        case And => if(Num(v1) != Num(0) && Num(v2) != Num(0)) { Bool(true) } else {Bool(false)}
-        case Or => if (Num(v1) != Num(0)) {
-          if (Num(v2) != Num(0)) { Bool(true) } else {Bool(false)}
-        } else {Bool(true)}
-        case Eq => Bool(v1 == v2)
-        case Ne => Bool (v1 != v2)
-        case Ge => Bool (v1 >= v2)
-        case Gt => Bool (v1 > v2)
-        case Le => Bool (v1 <= v2)
-        case Lt => Bool (v1 < v2)
+      case BinOp (Seq, v1, v2) if (isValue(v1)) => step(v2)
+      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2))  => bop match{
+        case Plus => (v1, v2) match {
+          case (Str(v1), v2) => Str( v1 + toStr(v2))
+          case (v1, Str(v2)) => Str( toStr(v1) + v2)
+          case (v1, v2) => Num(toNum(v1) + toNum(v2))
+        }
+        case Minus => Num (toNum(v1) - toNum(v2))
+        case Times => Num(toNum(v1) * toNum(v2))
+        case Div => Num( toNum(v1) / toNum(v2))
+        
+        
+        case bop if ((bop == Eq) || (bop == Ne) || (bop == Ge) 
+            || (bop == Gt) || (bop == Le) || (bop == Lt)) =>
+          Bool(inequalityVal(bop, v1, v2))
       }
       
-      case UnOp(UMinus, Num(v1)) => Num(-v1) 
+      case BinOp(And, v1, v2) if (isValue(v1)) => if (toBool(v1)) { 
+          Bool(toBool(step(v2))) 
+        }else { Bool(false) }
+      case BinOp(Or, v1, v2) if (isValue(v1)) => if(toBool(v1)) { Bool(true)}
+        else { Bool(toBool(step(v2))) } 
       
+      case UnOp(UMinus, v1) if(isValue(v1)) => Num(-toNum(v1)) 
+      case UnOp(Not, v1) if(isValue(v1)) => Bool(toBool(v1))
       
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
