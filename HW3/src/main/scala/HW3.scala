@@ -239,6 +239,26 @@ object HW3 extends js.util.JsApp {
       case Print(v1) if isValue(v1) => println(v1.prettyVal); Undefined
       
         // ****** Your cases here
+      case BinOp (bop, Num(v1), Num(v2)) => bop match{
+        case Plus => Num(v1 + v2);
+        case Minus => Num (v1 - v2);
+        case Times => Num(v1 * v2);
+        case Div => Num(v1 / v2);
+        //not short circuit ATM
+        case And => if(Num(v1) != Num(0) && Num(v2) != Num(0)) { Bool(true) } else {Bool(false)}
+        case Or => if (Num(v1) != Num(0)) {
+          if (Num(v2) != Num(0)) { Bool(true) } else {Bool(false)}
+        } else {Bool(true)}
+        case Eq => Bool(v1 == v2)
+        case Ne => Bool (v1 != v2)
+        case Ge => Bool (v1 >= v2)
+        case Gt => Bool (v1 > v2)
+        case Le => Bool (v1 <= v2)
+        case Lt => Bool (v1 < v2)
+      }
+      
+      case UnOp(UMinus, Num(v1)) => Num(-v1) 
+      
       
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))

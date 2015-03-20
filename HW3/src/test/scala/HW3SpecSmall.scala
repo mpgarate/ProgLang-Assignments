@@ -206,12 +206,12 @@ class SmallConstSpec extends FlatSpec {
     assert(e3 === Num(4))
   } 
   
-  "ConstDecl" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
-    val e1 = Num(3)
-    val e2 = BinOp(Plus, Var("x"), Num(1))
-    val e3 = iterateStep(ConstDecl("x", e1, e2)) 
-    assert(e3 === Num(4))
-  } 
+//  "ConstDecl" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
+//    val e1 = Num(3)
+//    val e2 = BinOp(Plus, Var("x"), Num(1))
+//    val e3 = iterateStep(ConstDecl("x", e1, e2)) 
+//    assert(e3 === Num(4))
+//  } 
   
 }
 
