@@ -239,7 +239,11 @@ object HW3 extends js.util.JsApp {
       case Print(v1) if isValue(v1) => println(v1.prettyVal); Undefined
       
         // ****** Your cases here
+      
+      //Do Seq
       case BinOp (Seq, v1, v2) if (isValue(v1)) => step(v2)
+      
+      //Do Math and Inequalities
       case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2))  => bop match{
         case Plus => (v1, v2) match {
           case (Str(v1), v2) => Str( v1 + toStr(v2))
@@ -256,17 +260,46 @@ object HW3 extends js.util.JsApp {
           Bool(inequalityVal(bop, v1, v2))
       }
       
+      //Do And
       case BinOp(And, v1, v2) if (isValue(v1)) => if (toBool(v1)) { 
           Bool(toBool(step(v2))) 
         }else { Bool(false) }
+      
+      //Do Or
       case BinOp(Or, v1, v2) if (isValue(v1)) => if(toBool(v1)) { Bool(true)}
         else { Bool(toBool(step(v2))) } 
       
-      case UnOp(UMinus, v1) if(isValue(v1)) => Num(-toNum(v1)) 
+      //Do UMinus
+      case UnOp(UMinus, v1) if(isValue(v1)) => Num(-toNum(v1))
+      //Do Not
       case UnOp(Not, v1) if(isValue(v1)) => Bool(toBool(v1))
+      //Do If
+      case If(v1, e2, e3) if (isValue(v1)) => if (toBool(v1)) step(e2) else step(e3)
+      //Do Const Dect
+      case ConstDecl(x, v1, e2) if (isValue(v1)) => substitute(e2, x, v1)
+      //Do Call
+      case Call(v1, v2) if (isValue(v1) && isValue(v2)) => {
+        v1 match {
+          case Function(None, x, e1) => {
+            substitute(e1, x, v2)
+          }
+          case Function(Some(x1), x2, e1) => {
+            substitute(e1, x1, v1)
+            substitute(e1, x2, v2)
+          }
+          case _ => throw DynamicTypeError(e)
+        }
+      }
       
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
+      //Search Equal
+
+      //Search Bop2
+      case BinOp(bop, v1, e2) if (isValue(v1)) => BinOp(bop, v1, step(e2))
+      //Search Bop1
+      case BinOp(bop, e1, e2) => BinOp(bop, step(e1), e2)
+      
       
         // ****** Your cases here
       
