@@ -203,35 +203,28 @@ object HW3 extends js.util.JsApp {
     /* Body */
     println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     e match {
-      //case Var(v1) => if (v1 == x) v else Var(v1)
-      case Var(v1) if (v1 == x) => v
-      case Var(v1)  => Var(v1)
+      case Var(v1) => if (v1 == x) v else Var(v1)
       case Num(_) | Bool(_) | Undefined | Str(_) => e
       // SearchPrint
       case Print(e1) => Print(subst(e1))
       // SearchBop2, although what does the bar over the arrow mean?
-      case BinOp(bop @ (
-          Plus | Minus | Times | Div | Lt | Le | Gt | Ge
-          ), v1 , e2) if isValue(v1) => {
-          BinOp(bop, v1, subst(e2))
-
-      }
-      case BinOp(bop @ (
-          Plus | Minus | Times | Div | Lt | Le | Gt | Ge),
-          Var(v1), e2) => if (v1 == x) BinOp(bop, v, subst(e2))
-            else BinOp(bop, Var(v1), subst(e2))
-      // SearchBop1
-      case BinOp(bop @ (Seq | And | Or), e1, e2) => {
-        BinOp(bop, subst(e1), subst(e2))
-      }
-      // SearchEqual
-      case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
-        BinOp(bop, v1, subst(e2))
-      }
-      case BinOp(bop @ (Eq | Ne), v1, e2) => BinOp(bop, subst(v1), subst(e2))
-
-      }
-      // SearchUop
+      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
+//      case BinOp(bop @ (
+//          Plus | Minus | Times | Div | Lt | Le | Gt | Ge
+//          ), v1 , e2) => {
+//          BinOp(bop, subst(v1), subst(e2))
+//
+//      }
+//      // SearchBop1
+//      case BinOp(bop @ (Seq | And | Or), e1, e2) => {
+//        BinOp(bop, subst(e1), subst(e2))
+//      }
+//      // SearchEqual
+//      case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
+//        BinOp(bop, v1, subst(e2))
+//      }
+//      case BinOp(bop @ (Eq | Ne), v1, e2) => BinOp(bop, subst(v1), subst(e2))
+//      // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       // SearchIf
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))

@@ -291,5 +291,19 @@ class SmallFunctionCallSpec extends FlatSpec {
     val e3 = iterateStep(Call(e1, e2))
     assert(e3 === Num(6))
   } 
+//  "Static vs Dynamic" should "implement static binding" in {
+//    val y = "y"
+//    val x = "x"
+//    val fun1 = Function(None, y, BinOp(Plus, Var(x), Var(y)))
+//    val f = Function(None, x, e2)
+//    val e2 = ConstDecl("plusTwo", fun1,  Function(None, x, Call(plusTwo, )))
+//    val e3 = iterateStep(ConstDecl("x", Num(2), e2)) 
+//    
+//    const x = 2;
+//    const plusTwo = function (y)(x + y);
+//    const f = function(x)(plusTwo(x));
+//    f(1)
+//
+//  }
 }
 
