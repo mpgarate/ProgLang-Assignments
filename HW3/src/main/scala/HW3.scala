@@ -261,8 +261,8 @@ object HW3 extends js.util.JsApp {
       }
       
       //Do And
-      case BinOp(And, v1, v2) if (isValue(v1)) => if (toBool(v1)) { 
-          Bool(toBool(step(v2))) 
+      case BinOp(And, v1, e2) if (isValue(v1)) => if (toBool(v1)) {
+          if (isValue(e2)) Bool(toBool(e2)) else Bool(toBool(step(e2))) 
         }else { Bool(false) }
       
       //Do Or
@@ -275,7 +275,7 @@ object HW3 extends js.util.JsApp {
       case UnOp(Not, v1) if(isValue(v1)) => Bool(toBool(v1))
       //Do If
       case If(v1, e2, e3) if (isValue(v1)) => if (toBool(v1)) step(e2) else step(e3)
-      //Do Const Dect
+      //Do ConstDect
       case ConstDecl(x, v1, e2) if (isValue(v1)) => substitute(e2, x, v1)
       //Do Call
       case Call(v1, v2) if (isValue(v1) && isValue(v2)) => {
@@ -292,14 +292,26 @@ object HW3 extends js.util.JsApp {
       }
       
       /* Inductive Cases: Search Rules */
+      //Search print
       case Print(e1) => Print(step(e1))
+      
       //Search Equal
-
+      case BinOp(bop, v1, e2) if (isValue(v1) && (v1 != Function) && ((bop == Eq)|| (bop == Ne)) ) => BinOp(bop, v1, step(e2))
       //Search Bop2
-      case BinOp(bop, v1, e2) if (isValue(v1)) => BinOp(bop, v1, step(e2))
+      case BinOp(bop, v1, e2) if (isValue(v1) && ((bop != And) && (bop != Or) && (bop != Eq) && (bop != Ne) && (bop != Seq))) => 
+          BinOp(bop, v1, step(e2))
       //Search Bop1
       case BinOp(bop, e1, e2) => BinOp(bop, step(e1), e2)
-      
+      //Search UOp
+      case UnOp(uop, e) if(!isValue(e)) => UnOp(uop, step(e))
+      //Search If
+      case If(e1, e2, e3) if (!isValue(e1)) => If(step(e1), e2, e3)
+      //Search Const
+      case ConstDecl(x, e1, e2) if (!isValue(e1)) => ConstDecl(x, step(e1), e2)
+      //Search Call 1
+      case Call(e1, e2) if (!isValue(e1)) => Call(step(e1), e2)
+      //Search Call 2
+      case Call(v1, e2) if (isValue(v1) && !isValue(e2)) => Call(v1, step(e2))
       
         // ****** Your cases here
       
