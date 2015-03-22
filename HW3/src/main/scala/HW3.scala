@@ -101,7 +101,6 @@ object HW3 extends js.util.JsApp {
     }
   }
 
-
   /* Big-Step Interpreter with Dynamic Scoping */
   
   /*
@@ -244,7 +243,10 @@ object HW3 extends js.util.JsApp {
       case BinOp (Seq, v1, v2) if (isValue(v1)) => step(v2)
       
       //Do Math and Inequalities
-      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2))  => bop match{
+      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2) && (bop == Plus) || 
+          (bop == Times) || (bop == Minus) || (bop == Div) || (bop == Eq) || 
+          (bop == Ne) || (bop == Ge) || (bop == Gt) || (bop == Le) || 
+          (bop == Lt))  => bop match{
         case Plus => (v1, v2) match {
           case (Str(v1), v2) => Str( v1 + toStr(v2))
           case (v1, Str(v2)) => Str( toStr(v1) + v2)
@@ -253,28 +255,67 @@ object HW3 extends js.util.JsApp {
         case Minus => Num (toNum(v1) - toNum(v2))
         case Times => Num(toNum(v1) * toNum(v2))
         case Div => Num( toNum(v1) / toNum(v2))
-        
-        
-        case bop if ((bop == Eq) || (bop == Ne) || (bop == Ge) 
-            || (bop == Gt) || (bop == Le) || (bop == Lt)) =>
+        case Eq => Bool(v1 == v2)
+        case Ne => Bool(v1 != v2)
+        case bop =>
           Bool(inequalityVal(bop, v1, v2))
       }
       
       //Do And
-      case BinOp(And, v1, e2) if (isValue(v1)) => if (toBool(v1)) {
-          if (isValue(e2)) Bool(toBool(e2)) else Bool(toBool(step(e2))) 
-        }else { Bool(false) }
+      case BinOp(And, v1, e2) if (isValue(v1)) => 
+        if (toBool(v1)) {
+          if (isValue(e2)) {
+            e2 match {
+              case s2 @ Str (e2) => s2
+              case n2 @ Num(e2) => n2
+              case b2 @ Bool(e2) => b2
+              case Undefined => Undefined
+              //function type error?
+            }
+          } else step(BinOp(And, v1, step(e2)))
+        }//return false value after
+        else{
+          v1 match {
+              case s1 @ Str (v1) => s1
+              case n1 @ Num(v1) => n1
+              case b1 @ Bool(v1) => b1
+              case Undefined => Undefined
+              //function type error?
+            }
+        }
       
       //Do Or
-      case BinOp(Or, v1, v2) if (isValue(v1)) => if(toBool(v1)) { Bool(true)}
-        else { Bool(toBool(step(v2))) } 
+      case BinOp(Or, v1, e2) if (isValue(v1)) => 
+      if (toBool(v1)) {
+        v1 match {
+          case s1 @ Str (v1) => s1
+          case n1 @ Num(v1) => n1
+          case b1 @ Bool(v1) => b1
+          case Undefined => Undefined
+            //function type error?
+        }
+      }//return false value after
+      else
+        if (isValue(e2)) {
+          e2 match {
+            case s2 @ Str (e2) => s2
+            case n2 @ Num(e2) => n2
+            case b2 @ Bool(e2) => b2
+            case Undefined => Undefined
+            //function type error?
+          }
+        } else step(BinOp(Or, v1, step(e2)))
+      
+      case BinOp(Or, v1, e2) if (isValue(v1)) => if(toBool(v1)) { Bool(true)}
+        else { if(isValue(e2)) Bool(toBool(e2)) else Bool(toBool(step(e2))) } 
       
       //Do UMinus
       case UnOp(UMinus, v1) if(isValue(v1)) => Num(-toNum(v1))
       //Do Not
-      case UnOp(Not, v1) if(isValue(v1)) => Bool(toBool(v1))
+      case UnOp(Not, v1) if(isValue(v1)) => Bool(!toBool(v1))
       //Do If
-      case If(v1, e2, e3) if (isValue(v1)) => if (toBool(v1)) step(e2) else step(e3)
+      case If(v1, e2, e3) if (isValue(v1)) => if (toBool(v1)) { if (isValue(e2)) e2 else step(e2) }
+        else if (isValue(e3)) e3 else step(e3)
       //Do ConstDect
       case ConstDecl(x, v1, e2) if (isValue(v1)) => substitute(e2, x, v1)
       //Do Call
