@@ -7,10 +7,10 @@ class SmallAndOrSpec extends FlatSpec {
   "And" should "return true only if both expressions are true" in {
     val t = Bool(true)
     val f = Bool(false)
-    assert(iterateStep(BinOp(And,t,t)) === t)
-    assert(iterateStep(BinOp(And,t,f)) === f)
     assert(iterateStep(BinOp(And,f,t)) === f)
+    assert(iterateStep(BinOp(And,t,t)) === t)
     assert(iterateStep(BinOp(And,f,f)) === f)
+    assert(iterateStep(BinOp(And,t,f)) === f)
   } 
  
   "And" should "return non-intuitive results from differing types" in {
