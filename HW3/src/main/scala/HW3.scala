@@ -208,9 +208,14 @@ object HW3 extends js.util.JsApp {
       // SearchBop2, although what does the bar over the arrow mean?
       case BinOp(bop @ (
           Plus | Minus | Times | Div | Lt | Le | Gt | Ge
-          ), v1, e2) if isValue(v1) => {
-        BinOp(bop, v1, subst(e2))
+          ), v1 , e2) if isValue(v1) => {
+          BinOp(bop, v1, subst(e2))
+
       }
+      case BinOp(bop @ (
+          Plus | Minus | Times | Div | Lt | Le | Gt | Ge),
+          Var(v1), e2) => if (v1 == x) BinOp(bop, v, subst(e2))
+            else BinOp(bop, Var(v1), subst(e2))
       // SearchBop1
       case BinOp(bop @ (Seq | And | Or), e1, e2) => {
         BinOp(bop, subst(e1), e2)
@@ -218,6 +223,13 @@ object HW3 extends js.util.JsApp {
       // SearchEqual
       case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
         BinOp(bop, v1, subst(e2))
+      }
+      case BinOp(bop @ (Eq | Ne), v1, e2) => (v1, e2) match {
+        case (Var(v1), _ ) if (v1 == x) => BinOp(bop, v, subst(e2))
+        case (_ , Var(v2)) if (v2 == x) => BinOp(bop, v1, v)
+        case (_ , _ ) if(isValue(v1) && isValue(e2)) => BinOp(bop, v1, e2)
+        case (_ , _ ) => BinOp(bop, subst(v1), subst(e2))
+
       }
       // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
