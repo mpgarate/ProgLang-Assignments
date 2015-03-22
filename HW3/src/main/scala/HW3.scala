@@ -201,7 +201,11 @@ object HW3 extends js.util.JsApp {
      * with the input value v and variable name x. */
     def subst(e: Expr): Expr = substitute(e, x, v)
     /* Body */
+    println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     e match {
+      //case Var(v1) => if (v1 == x) v else Var(v1)
+      case Var(v1) if (v1 == x) => v
+      case Var(v1)  => Var(v1)
       case Num(_) | Bool(_) | Undefined | Str(_) => e
       // SearchPrint
       case Print(e1) => Print(subst(e1))
@@ -218,23 +222,19 @@ object HW3 extends js.util.JsApp {
             else BinOp(bop, Var(v1), subst(e2))
       // SearchBop1
       case BinOp(bop @ (Seq | And | Or), e1, e2) => {
-        BinOp(bop, subst(e1), e2)
+        BinOp(bop, subst(e1), subst(e2))
       }
       // SearchEqual
       case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
         BinOp(bop, v1, subst(e2))
       }
-      case BinOp(bop @ (Eq | Ne), v1, e2) => (v1, e2) match {
-        case (Var(v1), _ ) if (v1 == x) => BinOp(bop, v, subst(e2))
-        case (_ , Var(v2)) if (v2 == x) => BinOp(bop, v1, v)
-        case (_ , _ ) if(isValue(v1) && isValue(e2)) => BinOp(bop, v1, e2)
-        case (_ , _ ) => BinOp(bop, subst(v1), subst(e2))
+      case BinOp(bop @ (Eq | Ne), v1, e2) => BinOp(bop, subst(v1), subst(e2))
 
       }
       // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       // SearchIf
-      case If(e1, e2, e3) => If(subst(e1), e2, e3)
+      case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       // SearchConst
       case ConstDecl(x, e1, e2) => ConstDecl(x, subst(e1), e2)
       // SearchCall2
@@ -337,8 +337,10 @@ object HW3 extends js.util.JsApp {
             substitute(e1, x, v2)
           }
           case Function(Some(x1), x2, e1) => {
-            substitute(e1, x1, v1)
-            substitute(e1, x2, v2)
+            println("in some Function")
+            val sub = substitute(e1, x1, v1)
+            println("\nafter first sub")
+            substitute(sub, x2, v2)
           }
           case _ => throw DynamicTypeError(e)
         }
