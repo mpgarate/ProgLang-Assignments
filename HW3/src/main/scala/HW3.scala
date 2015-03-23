@@ -233,7 +233,7 @@ object HW3 extends js.util.JsApp {
       case BinOp (Seq, v1, v2) if (isValue(v1)) => step(v2)
       
       //Do Math and Inequalities
-      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2) && (bop == Plus) || 
+      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2)) && ((bop == Plus) || 
           (bop == Times) || (bop == Minus) || (bop == Div) || (bop == Eq) || 
           (bop == Ne) || (bop == Ge) || (bop == Gt) || (bop == Le) || 
           (bop == Lt))  => bop match{
@@ -244,7 +244,7 @@ object HW3 extends js.util.JsApp {
         }
         case Minus => Num (toNum(v1) - toNum(v2))
         case Times => Num(toNum(v1) * toNum(v2))
-        case Div => Num( toNum(v1) / toNum(v2))
+        case Div => Num(toNum(v1) / toNum(v2))
         case Eq => Bool(v1 == v2)
         case Ne => Bool(v1 != v2)
         case bop =>
