@@ -207,24 +207,9 @@ object HW3 extends js.util.JsApp {
       case Num(_) | Bool(_) | Undefined | Str(_) => e
       // SearchPrint
       case Print(e1) => Print(subst(e1))
-      // SearchBop2, although what does the bar over the arrow mean?
+      // SearchBop2 
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
-//      case BinOp(bop @ (
-//          Plus | Minus | Times | Div | Lt | Le | Gt | Ge
-//          ), v1 , e2) => {
-//          BinOp(bop, subst(v1), subst(e2))
-//
-//      }
-//      // SearchBop1
-//      case BinOp(bop @ (Seq | And | Or), e1, e2) => {
-//        BinOp(bop, subst(e1), subst(e2))
-//      }
-//      // SearchEqual
-//      case BinOp(bop @ (Eq | Ne), v1, e2) if isFunction(v1) => {
-//        BinOp(bop, v1, subst(e2))
-//      }
-//      case BinOp(bop @ (Eq | Ne), v1, e2) => BinOp(bop, subst(v1), subst(e2))
-//      // SearchUop
+      // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       // SearchIf
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
