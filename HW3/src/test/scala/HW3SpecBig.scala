@@ -206,6 +206,14 @@ class BigConstSpec extends FlatSpec {
     val e3 = evaluate(ConstDecl("x", e1, e2)) 
     assert(e3 === Num(4))
   } 
+  
+  "ConstDecl2" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
+    val e1 = Num(3)
+    val e2 = BinOp(Plus, Var("x"), Num(1))
+    val e3 = iterateStep(ConstDecl("x", e1, e2)) 
+    assert(e3 === Num(4))
+  } 
+  
 }
 
 class BigIfSpec extends FlatSpec {

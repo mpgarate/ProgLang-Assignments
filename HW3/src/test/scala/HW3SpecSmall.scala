@@ -7,10 +7,10 @@ class SmallAndOrSpec extends FlatSpec {
   "And" should "return true only if both expressions are true" in {
     val t = Bool(true)
     val f = Bool(false)
-    assert(iterateStep(BinOp(And,f,t)) === f)
     assert(iterateStep(BinOp(And,t,t)) === t)
-    assert(iterateStep(BinOp(And,f,f)) === f)
     assert(iterateStep(BinOp(And,t,f)) === f)
+    assert(iterateStep(BinOp(And,f,t)) === f)
+    assert(iterateStep(BinOp(And,f,f)) === f)
   } 
  
   "And" should "return non-intuitive results from differing types" in {
@@ -206,12 +206,12 @@ class SmallConstSpec extends FlatSpec {
     assert(e3 === Num(4))
   } 
   
-//  "ConstDecl" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
-//    val e1 = Num(3)
-//    val e2 = BinOp(Plus, Var("x"), Num(1))
-//    val e3 = iterateStep(ConstDecl("x", e1, e2)) 
-//    assert(e3 === Num(4))
-//  } 
+  "ConstDecl2" should "extend the environment with the first expression results bound to the identifier, and then eval the second expression" in {
+    val e1 = Num(3)
+    val e2 = BinOp(Plus, Var("x"), Num(1))
+    val e3 = iterateStep(ConstDecl("x", e1, e2)) 
+    assert(e3 === Num(4))
+  } 
   
 }
 
@@ -291,19 +291,5 @@ class SmallFunctionCallSpec extends FlatSpec {
     val e3 = iterateStep(Call(e1, e2))
     assert(e3 === Num(6))
   } 
-//  "Static vs Dynamic" should "implement static binding" in {
-//    val y = "y"
-//    val x = "x"
-//    val fun1 = Function(None, y, BinOp(Plus, Var(x), Var(y)))
-//    val f = Function(None, x, e2)
-//    val e2 = ConstDecl("plusTwo", fun1,  Function(None, x, Call(plusTwo, )))
-//    val e3 = iterateStep(ConstDecl("x", Num(2), e2)) 
-//    
-//    const x = 2;
-//    const plusTwo = function (y)(x + y);
-//    const f = function(x)(plusTwo(x));
-//    f(1)
-//
-//  }
 }
 
