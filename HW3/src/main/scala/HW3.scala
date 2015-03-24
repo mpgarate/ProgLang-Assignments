@@ -230,13 +230,13 @@ object HW3 extends js.util.JsApp {
         // ****** Your cases here
       
       //Do Seq
-      case BinOp (Seq, v1, v2) if (isValue(v1)) => step(v2)
+      case BinOp (Seq, v1, v2) if (isValue(v1)) => v2
       
       //Do Math and Inequalities
       case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2)) && ((bop == Plus) || 
           (bop == Times) || (bop == Minus) || (bop == Div) || (bop == Eq) || 
           (bop == Ne) || (bop == Ge) || (bop == Gt) || (bop == Le) || 
-          (bop == Lt))  => bop match{
+          (bop == Lt))  => bop match {
         case Plus => (v1, v2) match {
           case (Str(v1), v2) => Str( v1 + toStr(v2))
           case (v1, Str(v2)) => Str( toStr(v1) + v2)
@@ -247,8 +247,7 @@ object HW3 extends js.util.JsApp {
         case Div => Num(toNum(v1) / toNum(v2))
         case Eq => Bool(v1 == v2)
         case Ne => Bool(v1 != v2)
-        case bop =>
-          Bool(inequalityVal(bop, v1, v2))
+        case bop => Bool(inequalityVal(bop, v1, v2))
       }
       
       //Do And
@@ -350,7 +349,7 @@ object HW3 extends js.util.JsApp {
       
       /* Cases that should never match. Your cases above should ensure this. */
       case Var(_) => throw new AssertionError("Gremlins: internal error, not a closed expression.")
-      case Num(_) | Bool(_) | Undefined | Str(_) | Function(_, _, _) => throw new AssertionError("Gremlins: internal error, step should not be called on values.");
+      case Num(_) | Bool(_) | Undefined | Str(_) | Function(_, _, _) => throw new AssertionError("Gremlins: internal error, step should not be called on values." + e);
     }
   }
   
