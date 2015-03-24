@@ -197,22 +197,28 @@ object HW3 extends js.util.JsApp {
   
   def substitute(e: Expr, x: String, v: Expr): Expr = {
     require(isValue(v))
+    println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     /* Simple helper that calls substitute on an expression
      * with the input value v and variable name x. */
     def subst(e: Expr): Expr = substitute(e, x, v)
     /* Body */
     println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     e match {
-      case Var(y) => if (x == y) v else e
-      case ConstDecl(y, ed, eb) if (y == x) => ConstDecl(y, ed, eb)
+      case Var(y) => if (x == y) {
+        println("---- substituting " + x)
+        v
+      } else { 
+        println("---- not substituting " + x + " for " + y)
+        e
+      }
       case ConstDecl(y, ed, eb) if (y != x) => ConstDecl(y, subst(ed), subst(eb))
-      case Function(p, y, e1) if (y != x && p != x) => Function(p, y, subst(e1))
-      case Function(p, y, e1) => Function(p, y, e1)
+      case Function(None, y, e1) if (y != x) => Function(None, y, subst(e1))
+      case Function(Some(p), y, e1) if (y != x && p != x) => Function(Some(p), y, subst(e1))
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
       // SearchPrint
       case Print(e1) => Print(subst(e1))
       // SearchCall2
-      case Call(e1, e2) if isValue(e1) => Call(e1, subst(e2))
+      case Call(v1, e2) if isValue(v1) => Call(v1, subst(e2))
       // SearchCall1
       case Call(e1, e2) => Call(subst(e1), subst(e2))
       // SearchUop
@@ -220,13 +226,8 @@ object HW3 extends js.util.JsApp {
       // SearchIf
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case _ => e
-//      case Num(_) | Bool(_) | Undefined | Str(_) => e
-//      // SearchBop2 
-//      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
-//      // SearchConst
-//      case ConstDecl(x1, e1, e2) if (x != x1) => ConstDecl(x, subst(e1), e2)
-//      case ConstDecl(x1, e1, e2) if (x == x1) => ConstDecl(x, e1, e2)
     }
+    
   } ensuring (e1 => !closed(v) || ! (fv(e) subsetOf Set(x)) || closed(e1))
     
   def step(e: Expr): Expr = {
