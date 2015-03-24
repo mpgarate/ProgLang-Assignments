@@ -203,24 +203,31 @@ object HW3 extends js.util.JsApp {
     /* Body */
     println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     e match {
-      case Var(v1) => if (v1 == x) v else Var(v1)
-      case Num(_) | Bool(_) | Undefined | Str(_) => e
+      case Var(y) => if (x == y) v else e
+      case ConstDecl(y, ed, eb) if (y == x) => ConstDecl(y, ed, eb)
+      case ConstDecl(y, ed, eb) if (y != x) => ConstDecl(y, subst(ed), subst(eb))
+      case Function(p, y, e1) if (y != x && p != x) => Function(p, y, subst(e1))
+      case Function(p, y, e1) => Function(p, y, e1)
+      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
       // SearchPrint
       case Print(e1) => Print(subst(e1))
-      // SearchBop2 
-      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
+      // SearchCall2
+      case Call(e1, e2) if isValue(e1) => Call(e1, subst(e2))
+      // SearchCall1
+      case Call(e1, e2) => Call(subst(e1), subst(e2))
       // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       // SearchIf
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
-      // SearchConst
-      case ConstDecl(x, e1, e2) => ConstDecl(x, subst(e1), e2)
-      // SearchCall2
-      case Call(e1, e2) if isValue(e1) => Call(e1, subst(e2))
-      // SearchCall1
-      case Call(e1, e2) => Call(subst(e1), e2)
+      case _ => e
+//      case Num(_) | Bool(_) | Undefined | Str(_) => e
+//      // SearchBop2 
+//      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
+//      // SearchConst
+//      case ConstDecl(x1, e1, e2) if (x != x1) => ConstDecl(x, subst(e1), e2)
+//      case ConstDecl(x1, e1, e2) if (x == x1) => ConstDecl(x, e1, e2)
     }
-  }
+  } ensuring (e1 => !closed(v) || ! (fv(e) subsetOf Set(x)) || closed(e1))
     
   def step(e: Expr): Expr = {
     e match {
@@ -351,7 +358,7 @@ object HW3 extends js.util.JsApp {
       case Var(_) => throw new AssertionError("Gremlins: internal error, not a closed expression.")
       case Num(_) | Bool(_) | Undefined | Str(_) | Function(_, _, _) => throw new AssertionError("Gremlins: internal error, step should not be called on values." + e);
     }
-  }
+  } ensuring (e1 => !closed(e) || closed(e1))
   
 
   /* External Interfaces */
