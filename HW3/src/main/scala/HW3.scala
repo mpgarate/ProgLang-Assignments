@@ -115,7 +115,7 @@ object HW3 extends js.util.JsApp {
     e match {
       /* Base Cases */
       case _ if isValue(e) => e
-      case Var(x) => get(env, x)
+      case Var(x) => env getOrElse (x, Undefined)
       
       /* Inductive Cases */
       case Print(e1) => println(eval(env, e1).prettyVal); Undefined
@@ -197,7 +197,6 @@ object HW3 extends js.util.JsApp {
   
   def substitute(e: Expr, x: String, v: Expr): Expr = {
     require(isValue(v))
-    println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     /* Simple helper that calls substitute on an expression
      * with the input value v and variable name x. */
     def subst(e: Expr): Expr = substitute(e, x, v)
@@ -212,6 +211,7 @@ object HW3 extends js.util.JsApp {
         e
       }
       case ConstDecl(y, ed, eb) if (y != x) => ConstDecl(y, subst(ed), subst(eb))
+      case ConstDecl(y, ed, eb) => ConstDecl(y, subst(ed), eb)
       case Function(None, y, e1) if (y != x) => Function(None, y, subst(e1))
       case Function(Some(p), y, e1) if (y != x && p != x) => Function(Some(p), y, subst(e1))
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
