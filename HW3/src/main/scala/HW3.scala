@@ -201,13 +201,13 @@ object HW3 extends js.util.JsApp {
      * with the input value v and variable name x. */
     def subst(e: Expr): Expr = substitute(e, x, v)
     /* Body */
-    println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
+//    println("\ne: " + e + "\nx: " + x + "\nv: "  + v);
     e match {
       case Var(y) => if (x == y) {
-        println("---- substituting " + x)
+//        println("---- substituting " + x)
         v
       } else { 
-        println("---- not substituting " + x + " for " + y)
+//        println("---- not substituting " + x + " for " + y)
         e
       }
       case ConstDecl(y, ed, eb) if (y != x) => ConstDecl(y, subst(ed), subst(eb))
@@ -316,9 +316,9 @@ object HW3 extends js.util.JsApp {
             substitute(e1, x, v2)
           }
           case Function(Some(x1), x2, e1) => {
-            println("in some Function")
+//            println("in some Function")
             val sub = substitute(e1, x1, v1)
-            println("\nafter first sub")
+//            println("\nafter first sub")
             substitute(sub, x2, v2)
           }
           case _ => throw DynamicTypeError(e)
