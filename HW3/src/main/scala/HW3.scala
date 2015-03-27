@@ -269,7 +269,6 @@ object HW3 extends js.util.JsApp {
               case n2 @ Num(e2) => n2
               case b2 @ Bool(e2) => b2
               case Undefined => Undefined
-              //function type error?
             }
           } else step(BinOp(And, v1, step(e2)))
         }//return false value after
@@ -279,7 +278,6 @@ object HW3 extends js.util.JsApp {
               case n1 @ Num(v1) => n1
               case b1 @ Bool(v1) => b1
               case Undefined => Undefined
-              //function type error?
             }
         }
       
@@ -291,7 +289,6 @@ object HW3 extends js.util.JsApp {
           case n1 @ Num(v1) => n1
           case b1 @ Bool(v1) => b1
           case Undefined => Undefined
-            //function type error?
         }
       }//return false value after
       else
@@ -301,7 +298,6 @@ object HW3 extends js.util.JsApp {
             case n2 @ Num(e2) => n2
             case b2 @ Bool(e2) => b2
             case Undefined => Undefined
-            //function type error?
           }
         } else step(BinOp(Or, v1, step(e2)))
       
