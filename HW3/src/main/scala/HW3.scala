@@ -233,12 +233,20 @@ object HW3 extends js.util.JsApp {
       
       //Do Seq
       case BinOp (Seq, v1, v2) if (isValue(v1)) => v2
-      
+          
+      // TypeErrorEqual2
+      case BinOp(bop @ (Eq | Ne), v1, Function(p, x, e)) => {
+        throw DynamicTypeError(Function(p, x, e))
+      }
+          
+      // TypeErrorEqual2
+      case BinOp(bop @ (Eq | Ne), Function(p, x, e), e2) => {
+        throw DynamicTypeError(Function(p, x, e))
+      }
+
       //Do Math and Inequalities
-      case BinOp (bop, v1, v2) if (isValue(v1) && isValue(v2)) && ((bop == Plus) || 
-          (bop == Times) || (bop == Minus) || (bop == Div) || (bop == Eq) || 
-          (bop == Ne) || (bop == Ge) || (bop == Gt) || (bop == Le) || 
-          (bop == Lt))  => bop match {
+      case BinOp (bop @ (Plus | Times | Minus | Div | Eq | Ne | Ge | Gt | Le | Lt), v1, v2) if (
+          isValue(v1) && isValue(v2)) => bop match {
         case Plus => (v1, v2) match {
           case (Str(v1), v2) => Str( v1 + toStr(v2))
           case (v1, Str(v2)) => Str( toStr(v1) + v2)
