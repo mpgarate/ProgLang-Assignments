@@ -231,7 +231,7 @@ object HW3 extends js.util.JsApp {
       
         // ****** Your cases here
       
-      //Do Seq
+      // Do Seq
       case BinOp (Seq, v1, v2) if (isValue(v1)) => v2
           
       // TypeErrorEqual2
@@ -244,7 +244,7 @@ object HW3 extends js.util.JsApp {
         throw DynamicTypeError(Function(p, x, e))
       }
 
-      //Do Math and Inequalities
+      // Do Math and Inequalities
       case BinOp (bop @ (Plus | Times | Minus | Div | Eq | Ne | Ge | Gt | Le | Lt), v1, v2) if (
           isValue(v1) && isValue(v2)) => bop match {
         case Plus => (v1, v2) match {
@@ -260,12 +260,12 @@ object HW3 extends js.util.JsApp {
         case bop => Bool(inequalityVal(bop, v1, v2))
       }
       
-      //Do And
+      // Do And
       case BinOp(And, v1, e2) if (isValue(v1)) => 
         if (toBool(v1)) {
           if (isValue(e2)) {
             e2 match {
-              case s2 @ Str (e2) => s2
+              case s2 @ Str(e2) => s2
               case n2 @ Num(e2) => n2
               case b2 @ Bool(e2) => b2
               case Undefined => Undefined
@@ -291,7 +291,7 @@ object HW3 extends js.util.JsApp {
           case n1 @ Num(v1) => n1
           case b1 @ Bool(v1) => b1
           case Undefined => Undefined
-            //function type error?
+          //function type error?
         }
       }//return false value after
       else
@@ -313,8 +313,12 @@ object HW3 extends js.util.JsApp {
       //Do Not
       case UnOp(Not, v1) if(isValue(v1)) => Bool(!toBool(v1))
       //Do If
-      case If(v1, e2, e3) if (isValue(v1)) => if (toBool(v1)) { if (isValue(e2)) e2 else step(e2) }
+      case If(v1, e2, e3) if (isValue(v1)) => {
+        if (toBool(v1)) {
+          if (isValue(e2)) e2 else step(e2)
+        }
         else if (isValue(e3)) e3 else step(e3)
+      } 
       //Do ConstDect
       case ConstDecl(x, v1, e2) if (isValue(v1)) => substitute(e2, x, v1)
       //Do Call
@@ -324,9 +328,7 @@ object HW3 extends js.util.JsApp {
             substitute(e1, x, v2)
           }
           case Function(Some(x1), x2, e1) => {
-//            println("in some Function")
             val sub = substitute(e1, x1, v1)
-//            println("\nafter first sub")
             substitute(sub, x2, v2)
           }
           case _ => throw DynamicTypeError(e)
