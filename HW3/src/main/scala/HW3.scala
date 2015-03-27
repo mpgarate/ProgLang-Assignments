@@ -215,15 +215,9 @@ object HW3 extends js.util.JsApp {
       case Function(None, y, e1) if (y != x) => Function(None, y, subst(e1))
       case Function(Some(p), y, e1) if (y != x && p != x) => Function(Some(p), y, subst(e1))
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
-      // SearchPrint
       case Print(e1) => Print(subst(e1))
-      // SearchCall2
-      case Call(v1, e2) if isValue(v1) => Call(v1, subst(e2))
-      // SearchCall1
       case Call(e1, e2) => Call(subst(e1), subst(e2))
-      // SearchUop
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
-      // SearchIf
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case _ => e
     }
