@@ -49,8 +49,13 @@ object HW4 extends js.util.JsApp {
   }
   
   def mapFirst[A](f: A => Option[A])(l: List[A]): List[A] = l match {
-    case Nil => ???
-    case h :: t => ???
+    case Nil => Nil
+    case h :: t => {
+      f(h) match {
+        case Some(a) => a :: mapFirst { (_: Any) => None} (t)
+        case None => h :: mapFirst(f)(t)
+      }
+    }
   }
   
   /* Search Trees */
