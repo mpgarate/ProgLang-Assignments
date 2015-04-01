@@ -40,7 +40,12 @@ object HW4 extends js.util.JsApp {
   }
   
   def compressFold[A](l: List[A]): List[A] = l.foldRight(Nil: List[A]){
-    (h, acc) => ???
+    (h, acc) => println(l + " h: " + h + " acc: "+ acc);
+      if (acc == Nil) h :: acc 
+      else 
+        acc match {
+          case (h1 :: _ ) => if (h == h1) acc else h :: acc
+      }
   }
   
   def mapFirst[A](f: A => Option[A])(l: List[A]): List[A] = l match {
