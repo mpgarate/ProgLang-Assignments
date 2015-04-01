@@ -68,8 +68,13 @@ object HW4 extends js.util.JsApp {
     
     def foldLeft[A](z: A)(f: (A, Int) => A): A = {
       def loop(acc: A, t: Tree): A = t match {
-        case Empty => ???
-        case Node(l, d, r) => ???
+        case Empty => acc
+        case Node(l, d, r) => {
+          println("l: " + l)
+          println("d: " + d)
+          println("r: " + r)
+          f(loop(acc, r), d)
+        }
       }
       loop(z, this)
     }
