@@ -40,17 +40,22 @@ object HW4 extends js.util.JsApp {
   }
   
   def compressFold[A](l: List[A]): List[A] = l.foldRight(Nil: List[A]){
-    (h, acc) => println(l + " h: " + h + " acc: "+ acc);
-      if (acc == Nil) h :: acc 
-      else 
-        acc match {
-          case (h1 :: _ ) => if (h == h1) acc else h :: acc
+    (h, acc) => {
+      acc match {
+        case (h1 :: _) if h1 == h => acc
+        case _ => h :: acc
       }
+    }
   }
   
   def mapFirst[A](f: A => Option[A])(l: List[A]): List[A] = l match {
-    case Nil => ???
-    case h :: t => ???
+    case Nil => Nil
+    case h :: t => {
+      f(h) match {
+        case Some(a) => a :: mapFirst { (_: Any) => None} (t)
+        case None => h :: mapFirst(f)(t)
+      }
+    }
   }
   
   /* Search Trees */
@@ -63,8 +68,13 @@ object HW4 extends js.util.JsApp {
     
     def foldLeft[A](z: A)(f: (A, Int) => A): A = {
       def loop(acc: A, t: Tree): A = t match {
-        case Empty => ???
-        case Node(l, d, r) => ???
+        case Empty => acc
+        case Node(l, d, r) => {
+          println("l: " + l)
+          println("d: " + d)
+          println("r: " + r)
+          f(loop(acc, r), d)
+        }
       }
       loop(z, this)
     }
