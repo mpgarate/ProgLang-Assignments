@@ -138,21 +138,48 @@ object HW4 extends js.util.JsApp {
         case tgot => err(tgot, e1)
       }
       case UnOp(Not, e1) =>
-        ???
+        typ(e1) match {
+          case TBool => TBool
+          case ta => err(ta, e1)
+        }
       case BinOp(Plus, e1, e2) =>
-        ???
+        (typ(e1), typ(e2)) match {
+          case (TNumber, TNumber) => TNumber
+          case (TString, TString) => TString
+          case ((TNumber | TString), ta ) => err(ta, e2)
+          case (ta, _) => err(ta, e1)
+        }
       case BinOp(Minus|Times|Div, e1, e2) => 
-        ???
+        (typ(e1), typ(e2)) match {
+          case (TNumber, TNumber) => TNumber
+          case ((TNumber), ta ) => err(ta, e2)
+          case (ta, _) => err(ta, e1)
+        }
       case BinOp(Eq|Ne, e1, e2) =>
-        ???
+        if (hasFunctionTyp(typ(e1))) err(typ(e1), e1) else if ( hasFunctionTyp(typ(e2))) err(typ(e2), e2)
+        (typ(e1), typ(e2)) match {
+          case (t1, t2) => if (t1 == t2) t1 else err(t2, e2)
+        }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) =>
-        ???
+        (typ(e1), typ(e2)) match {
+          case (TNumber, TNumber) => TNumber
+          case (TString, TString) => TString
+          case ((TNumber | TString), ta ) => err(ta, e2)
+          case (ta, _) => err(ta, e1)
+        }
       case BinOp(And|Or, e1, e2) =>
-        ???
+        (typ(e1), typ(e2)) match {
+          case (TBool, TBool) => TBool
+          case (TBool, t2) => err(t2, e2)
+          case (t1, _) => err(t1, e1)
+        }
       case BinOp(Seq, e1, e2) =>
-        ???
+        typ(e2)
       case If(e1, e2, e3) =>
-        ???
+        typ(e1) match {
+          case (b @ TBool) => val t2 = typ(e2); val t3 = typ(e3); if (t2 == t3) t2 else err(t3, e3)
+          case (b) => err(b, e1)
+        }
       case Function(p, xs, tann, e1) => {
         // Bind to env1 an environment that extends env with an appropriate binding if
         // the function is potentially recursive.
@@ -278,7 +305,10 @@ object HW4 extends js.util.JsApp {
       case If(e1, e2, e3) => If(step(e1), e2, e3)
       case ConstDecl(x, e1, e2) => ConstDecl(x, step(e1), e2)
       /*** Fill-in more cases here. ***/
-      
+      //search obj
+      //search get field
+      //searchCall1
+      //search call2  
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
       case _ => throw StuckError(e)
     }
