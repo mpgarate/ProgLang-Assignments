@@ -70,9 +70,6 @@ object HW4 extends js.util.JsApp {
       def loop(acc: A, t: Tree): A = t match {
         case Empty => acc
         case Node(l, d, r) => {
-          println("l: " + l)
-          println("d: " + d)
-          println("r: " + r)
           f(loop(acc, r), d)
         }
       }
@@ -99,7 +96,14 @@ object HW4 extends js.util.JsApp {
   
   def strictlyOrdered(t: Tree): Boolean = {
     val (b, _) = t.foldLeft((true, None: Option[Int])){
-      ???
+      (t, d) => {
+        t match{
+          case (false, _) => (false, Some(d))
+          case (true, None) => (true, Some(d))
+          case (true, Some(d1)) if (d1 > d) => (true, Some(d))
+          case (true, _) => (false, Some(d))
+        }
+      }
     }
     b
   }

@@ -24,7 +24,7 @@ class HW4Spec extends FlatSpec {
       sum(treeFromList(List(1, 2, 3)))
     }
   }
-
+  
   "strictlyOrdered" should "check strict ordering of a binary search tree" in {
     assert(!strictlyOrdered(treeFromList(List(1,1,2))))
     assert(strictlyOrdered(treeFromList(List(1,2))))
