@@ -302,7 +302,10 @@ object HW4 extends js.util.JsApp {
       case If(e1, e2, e3) => If(step(e1), e2, e3)
       case ConstDecl(x, e1, e2) => ConstDecl(x, step(e1), e2)
       /*** Fill-in more cases here. ***/
-      
+      //search obj
+      //search get field
+      //searchCall1
+      //search call2  
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
       case _ => throw StuckError(e)
     }
