@@ -208,9 +208,10 @@ object HW4 extends js.util.JsApp {
         case tgot => err(tgot, e1)
       }
       case Obj(fs) =>
-        ???
+        TObj(fs.mapValues(typ(_)))
       case GetField(e1, f) =>
-        ???
+        //evaluate e1 to obj, and then get value of f and return type
+        //create a map using small step? 
     }
   }
   
