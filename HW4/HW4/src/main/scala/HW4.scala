@@ -201,7 +201,7 @@ object HW4 extends js.util.JsApp {
       case Call(e1, es) => typ(e1) match {
         case TFunction(txs, tret) if (txs.length == es.length) => {
           (txs, es).zipped.foreach {
-            ???
+              case ((_,t1), e) => val t2 = typ(e); if (t1 == t2) t1 else err(t2, e)
           }
           tret
         }
