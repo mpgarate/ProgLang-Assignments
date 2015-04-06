@@ -191,11 +191,12 @@ object HW4 extends js.util.JsApp {
           case _ => err(TUndefined, e1)
         }
         // Bind to env2 an environment that extends env1 with bindings for xs.
-        val env2 = ???
+        val env2 = env1 ++ xs //think it might work?
         // Match on whether the return type is specified.
         tann match {
-          case None => ???
-          case Some(tret) => ???
+          case None => typeInfer(env2, e1) //then just get the return type by plugging in the values
+            //
+          case Some(tret) => val inferred = typeInfer(env2, e1); if (inferred == tret) tret else err(inferred, e1)  //check whether the return type equals what you get by plugging in the values
         }
       }
       case Call(e1, es) => typ(e1) match {
