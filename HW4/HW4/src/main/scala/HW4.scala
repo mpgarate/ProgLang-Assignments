@@ -301,7 +301,8 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              case (((s1, a), b), es) => substitute(e1, s1 ,b)
+              //case (((s1, a), b), es) => substitute(e1, s1 ,b)
+              case (((s1, a), b), es) => substitute(es, s1, b)
             }
             p match {
               case None => step(e1p) //Are we supposed to call step in Do steps?
@@ -346,13 +347,13 @@ object HW4 extends js.util.JsApp {
       //search get field
       case GetField(e1, f) => GetField(step(e1),f)
       //search call2
-      case Call(v1, e2) if (isValue(v1)) => Call(v1, step(e2)) //check whether individual values in e2 are values, and if not call it it on an individual value
+      //case Call(v1, e2) if (isValue(v1)) => Call(v1, step(e2)) //check whether individual values in e2 are values, and if not call it it on an individual value
       //searchCall1
       case Call(e1, e2) => Call(step(e1), e2)
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
       case _ => throw StuckError(e)
     }
-    if (e1.pos == null) e1.pos = e.pos
+    if (e1.pos == null) e1.pos = e.pos //is this giving you an error too?
     e1
   } ensuring (e1 => closed(e1))
   
@@ -415,7 +416,7 @@ object HW4 extends js.util.JsApp {
     }
     
     handle(fail()) {
-      val t = inferType(expr)
+      // val t = inferType(expr)
     }
     
     handle() {
