@@ -253,17 +253,26 @@ object HW4 extends js.util.JsApp {
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case Var(y) => if (x == y) v else e
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
-      case Function(p, xs, tann, e1) =>
-        ???
-      case Call(e1, es) =>
-        ???
+      case Function(p, xs, tann, e1) => {
+        if (x == xs || Some(x) == p){
+          Function(p, xs, tann, e1)
+        } else {
+          Function(p, xs, tann, subst(e1))
+        }
+      }
+        
+      case Call(e1, es) => {
+        if (isValue(e1)) {
+          Call(e1, es.map { e2 => if(isValue(e2)) e2 else subst(e2)})
+        } else {
+          Call(subst(e1), es)
+        }
+      }
+      // maybe this should use mapFirst
       case Obj(fs) => {
         Obj(fs.map(item => (item._1, subst(item._2))))
       }
-      // this will probably need adjusting
-      case GetField(e1, f) => e1 match {
-        case Obj(fs) => subst(fs.getOrElse(f, Undefined))
-      }
+      case GetField(e1, f) => GetField(subst(e1), f)
     }
   }
   
@@ -303,10 +312,11 @@ object HW4 extends js.util.JsApp {
         }
       /*** Fill-in more cases here. ***/
        
-      // TypeArith
+      // DoArith
       case BinOp(Minus, Num(n1), Num(n2)) => Num(n1 - n2)
       case BinOp(Times, Num(n1), Num(n2)) => Num(n1 * n2)
       case BinOp(Div, Num(n1), Num(n2)) => Num(n1 / n2)
+      
       
       // not sure if we'll need this:
       // case Call(Num(_) | Bool(_) | Str(_) | Undefined, _) => 
