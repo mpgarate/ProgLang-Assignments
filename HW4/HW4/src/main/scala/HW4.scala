@@ -158,7 +158,7 @@ object HW4 extends js.util.JsApp {
       case BinOp(Eq|Ne, e1, e2) =>
         if (hasFunctionTyp(typ(e1))) err(typ(e1), e1) else if ( hasFunctionTyp(typ(e2))) err(typ(e2), e2)
         (typ(e1), typ(e2)) match {
-          case (t1, t2) => if (t1 == t2) t1 else err(t2, e2)
+          case (t1, t2) => if (t1 == t2) TBool else err(t2, e2)
         }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) =>
         (typ(e1), typ(e2)) match {
@@ -176,7 +176,7 @@ object HW4 extends js.util.JsApp {
       case BinOp(Seq, e1, e2) =>
         typ(e2)
       case If(e1, e2, e3) =>
-        typ(e1) match {
+        typ(e1  ) match {
           case (b @ TBool) => val t2 = typ(e2); val t3 = typ(e3); if (t2 == t3) t2 else err(t3, e3)
           case (b) => err(b, e1)
         }
@@ -194,19 +194,19 @@ object HW4 extends js.util.JsApp {
         val env2 = env1 ++ xs //think it might work?
         // Match on whether the return type is specified.
         tann match {
-          case None => typeInfer(env2, e1) //then just get the return type by plugging in the values
+          case None => TFunction(xs, typeInfer(env2, e1)) //then just get the return type by plugging in the values
             //
-          case Some(tret) => val inferred = typeInfer(env2, e1); if (inferred == tret) tret else err(inferred, e1)  //check whether the return type equals what you get by plugging in the values
+          case Some(tret) => val inferred = typeInfer(env2, e1); if (inferred == tret) TFunction(xs,tret) else err(inferred, e1)  //check whether the return type equals what you get by plugging in the values
         }
       }
       case Call(e1, es) => typ(e1) match {
         case TFunction(txs, tret) if (txs.length == es.length) => {
           (txs, es).zipped.foreach {
-              case ((_,t1), e) => val t2 = typ(e); if (t1 == t2) t1 else err(t2, e)
+              case ((_,t1), e) => val t2 = typ(e); if (t1 == t2) {println("types match in\n"+ e1 +"\n" + es + "\n" ); t1} else err(t2, e)
           }
           tret
         }
-        case tgot => err(tgot, e1)
+        case tgot => println("\ntgot: not a function: " + tgot + "\ne1: " + e1 + "\n es: " + es ); err(tgot, e1)
       }
       case Obj(fs) =>
         TObj(fs.mapValues(typ(_)))
