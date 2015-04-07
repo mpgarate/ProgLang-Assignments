@@ -162,8 +162,8 @@ object HW4 extends js.util.JsApp {
         }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) =>
         (typ(e1), typ(e2)) match {
-          case (TNumber, TNumber) => TNumber
-          case (TString, TString) => TString
+          case (TNumber, TNumber) => TBool
+          case (TString, TString) => TBool
           case ((TNumber | TString), ta ) => err(ta, e2)
           case (ta, _) => err(ta, e1)
         }
