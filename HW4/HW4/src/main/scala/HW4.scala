@@ -301,11 +301,10 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              //case (((s1, a), b), es) => substitute(e1, s1 ,b)
               case (((s1, a), b), es) => substitute(es, s1, b)
             }
             p match {
-              case None => step(e1p) //Are we supposed to call step in Do steps?
+              case None => e1p //Are we supposed to call step in Do steps?
               case Some(x1) => substitute(e1p , x1, v1)
             }
           }
@@ -318,18 +317,8 @@ object HW4 extends js.util.JsApp {
       case BinOp(Times, Num(n1), Num(n2)) => Num(n1 * n2)
       case BinOp(Div, Num(n1), Num(n2)) => Num(n1 / n2)
       
-      
-      // not sure if we'll need this:
-      // case Call(Num(_) | Bool(_) | Str(_) | Undefined, _) => 
-      //    throw DynamicTypeError(e)
-
-      // TypeIf
+      // DoIf
       case If(Bool(b1), e2, e3) => if (b1) step(e2) else step(e3)
-    
-      // TypeObj
-//      case Obj(fs) => {
-//        return Obj(for ((name, fn) <- fs) step(fn))
-//      }
         
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
@@ -341,9 +330,8 @@ object HW4 extends js.util.JsApp {
       /*** Fill-in more cases here. ***/
       
       //search obj
-      case Obj(fs) => {
-        
-      }
+      case Obj(fs) => Obj(fs.map{ case(str, e1) => (str, step(e1)) })
+     
       //search get field
       case GetField(e1, f) => GetField(step(e1),f)
       //search call2
