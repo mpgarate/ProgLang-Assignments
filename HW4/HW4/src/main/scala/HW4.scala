@@ -301,11 +301,11 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              ???
+              (vn, en) => substitute(en, vn._1._1, vn._2)
             }
             p match {
-              case None => ???
-              case Some(x1) => ???
+              case None => step(e1p)
+              case Some(x1) => substitute(e1p, x1, v1)
             }
           }
           case _ => throw new StuckError(e)
@@ -409,7 +409,7 @@ object HW4 extends js.util.JsApp {
     }
     
     handle(fail()) {
-      val t = inferType(expr)
+      // val t = inferType(expr)
     }
     
     handle() {
