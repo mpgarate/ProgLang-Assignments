@@ -301,7 +301,7 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              (vn, en) => substitute(en, vn._1._1, vn._2)
+              case (((s1, a), b), es) => substitute(es, s1, b)
             }
             p match {
               case None => step(e1p)
