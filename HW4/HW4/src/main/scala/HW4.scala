@@ -301,11 +301,11 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              ???
+              case (((s1, a), b), es) => substitute(e1, s1 ,b)
             }
             p match {
-              case None => ???
-              case Some(x1) => ???
+              case None => step(e1p) //Are we supposed to call step in Do steps?
+              case Some(x1) => substitute(e1p , x1, v1)
             }
           }
           case _ => throw new StuckError(e)
@@ -340,9 +340,15 @@ object HW4 extends js.util.JsApp {
       /*** Fill-in more cases here. ***/
       
       //search obj
+      case Obj(fs) => {
+        
+      }
       //search get field
+      case GetField(e1, f) => GetField(step(e1),f)
+      //search call2
+      case Call(v1, e2) if (isValue(v1)) => Call(v1, step(e2)) //check whether individual values in e2 are values, and if not call it it on an individual value
       //searchCall1
-      //search call2  
+      case Call(e1, e2) => Call(step(e1), e2)
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
       case _ => throw StuckError(e)
     }
