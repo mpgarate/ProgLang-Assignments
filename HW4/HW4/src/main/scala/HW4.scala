@@ -191,22 +191,22 @@ object HW4 extends js.util.JsApp {
           case _ => err(TUndefined, e1)
         }
         // Bind to env2 an environment that extends env1 with bindings for xs.
-        val env2 = env1 ++ xs //think it might work?
+        val env2 = env1 ++ xs
         // Match on whether the return type is specified.
         tann match {
-          case None => TFunction(xs, typeInfer(env2, e1)) //then just get the return type by plugging in the values
+          case None => TFunction(xs, typeInfer(env2, e1))
             //
-          case Some(tret) => val inferred = typeInfer(env2, e1); if (inferred == tret) TFunction(xs,tret) else err(inferred, e1)  //check whether the return type equals what you get by plugging in the values
+          case Some(tret) => val inferred = typeInfer(env2, e1); if (inferred == tret) TFunction(xs,tret) else err(inferred, e1)
         }
       }
       case Call(e1, es) => typ(e1) match {
         case TFunction(txs, tret) if (txs.length == es.length) => {
           (txs, es).zipped.foreach {
-              case ((_,t1), e) => val t2 = typ(e); if (t1 == t2) {println("types match in\n"+ e1 +"\n" + es + "\n" ); t1} else err(t2, e)
+              case ((_,t1), e) => val t2 = typ(e); if (t1 == t2) t1 else err(t2, e)
           }
           tret
         }
-        case tgot => println("\ntgot: not a function: " + tgot + "\ne1: " + e1 + "\n es: " + es ); err(tgot, e1)
+        case tgot => err(tgot, e1)
       }
       case Obj(fs) =>
         TObj(fs.mapValues(typ(_)))
