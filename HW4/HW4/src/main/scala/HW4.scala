@@ -257,10 +257,13 @@ object HW4 extends js.util.JsApp {
         ???
       case Call(e1, es) =>
         ???
-      case Obj(fs) =>
-        ???
-      case GetField(e1, f) =>
-        ???
+      case Obj(fs) => {
+        Obj(fs.map(item => (item._1, subst(item._2))))
+      }
+      // this will probably need adjusting
+      case GetField(e1, f) => e1 match {
+        case Obj(fs) => subst(fs.getOrElse(f, Undefined))
+      }
     }
   }
   
@@ -299,6 +302,23 @@ object HW4 extends js.util.JsApp {
           case _ => throw new StuckError(e)
         }
       /*** Fill-in more cases here. ***/
+       
+      // TypeArith
+      case BinOp(Minus, Num(n1), Num(n2)) => Num(n1 - n2)
+      case BinOp(Times, Num(n1), Num(n2)) => Num(n1 * n2)
+      case BinOp(Div, Num(n1), Num(n2)) => Num(n1 / n2)
+      
+      // not sure if we'll need this:
+      // case Call(Num(_) | Bool(_) | Str(_) | Undefined, _) => 
+      //    throw DynamicTypeError(e)
+
+      // TypeIf
+      case If(Bool(b1), e2, e3) => if (b1) step(e2) else step(e3)
+    
+      // TypeObj
+//      case Obj(fs) => {
+//        return Obj(for ((name, fn) <- fs) step(fn))
+//      }
         
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
@@ -308,6 +328,7 @@ object HW4 extends js.util.JsApp {
       case If(e1, e2, e3) => If(step(e1), e2, e3)
       case ConstDecl(x, e1, e2) => ConstDecl(x, step(e1), e2)
       /*** Fill-in more cases here. ***/
+      
       //search obj
       //search get field
       //searchCall1
