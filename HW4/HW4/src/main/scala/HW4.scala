@@ -428,7 +428,7 @@ object HW4 extends js.util.JsApp {
     }
     
     handle(fail()) {
-      // val t = inferType(expr)
+      val t = inferType(expr)
     }
     
     handle() {
