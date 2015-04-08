@@ -264,7 +264,7 @@ object HW4 extends js.util.JsApp {
       }
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e1) => {//Function(p, xs, tann, subst(e1))
-        if (x == xs || Some(x) == p){
+        if (xs.exists { x1 => x1._1 == x } || Some(x) == p){
           Function(p, xs, tann, e1)
         } else {
           Function(p, xs, tann, subst(e1))
@@ -314,7 +314,9 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              case (((s1, a), b), e2) => substitute(e2, s1, b)
+              case (((s1, a), b), e2) => {
+                substitute(e2, s1, b) 
+              }
             }
             p match {
               case None => e1p
