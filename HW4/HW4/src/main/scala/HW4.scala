@@ -242,12 +242,6 @@ object HW4 extends js.util.JsApp {
   
   def substitute(e: Expr, x: String, v: Expr): Expr = {
     require(isValue(v) && closed(v))
-    println("------ SUBS ------")
-    println("e: " + e)
-    println("x: " + x)
-    println("v: " + v)
-    println("------/SUBS ------")
-    
     def subst(e: Expr): Expr = substitute(e, x, v)
     
     e match {
@@ -256,12 +250,7 @@ object HW4 extends js.util.JsApp {
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
-      case Var(y) => { 
-        if (x == y) {
-          println("substing " + x + " with " + v)
-          v
-         } else e
-      }
+      case Var(y) => if (x == y) v else e
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e1) => {//Function(p, xs, tann, subst(e1))
         if (xs.exists { x1 => x1._1 == x } || Some(x) == p){
@@ -272,24 +261,12 @@ object HW4 extends js.util.JsApp {
       }
         
       case Call(e1, es) => Call(subst(e1), es.map(e2 => subst(e2)))
-//        if (isValue(e1)) {
-//          println("isValue: " + e1)
-//          Call(subst(e1), mapFirst { (e2: Expr) => Some(subst(e2)) }(es))
-//        } else {
-//          println("notValue: " + e1)
-//          Call(subst(e1), es)
-//        }
-//      }
       case Obj(fs) => Obj(fs.map{ case(str, e1) => (str, subst(e1)) })
-      
       case GetField(e1, f) => GetField(subst(e1), f)
     }
   }
   
   def step(e: Expr): Expr = {
-    println("------ STEP ------")
-    println(e)
-    println("------/STEP ------")
     require(!isValue(e))
     assume(closed(e))
     
@@ -337,7 +314,7 @@ object HW4 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => if (b1) e2 else e3
       
       // DoInequalNum
-      // DoIntequalStr
+      // DoInequalStr
       // DoGetField
       case GetField(Obj(xs), f) => xs.getOrElse(f, Undefined)
         
@@ -428,7 +405,7 @@ object HW4 extends js.util.JsApp {
     }
     
     handle(fail()) {
-      // val t = inferType(expr)
+      val t = inferType(expr)
     }
     
     handle() {
