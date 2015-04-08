@@ -263,15 +263,15 @@ object HW4 extends js.util.JsApp {
          } else e
       }
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
-      case Function(p, xs, tann, e1) => Function(p, xs, tann, subst(e1))
-//        if (x == xs || Some(x) == p){
-//          Function(p, xs, tann, e1)
-//        } else {
-//          Function(p, xs, tann, subst(e1))
-//        }
-//      }
+      case Function(p, xs, tann, e1) => {//Function(p, xs, tann, subst(e1))
+        if (x == xs || Some(x) == p){
+          Function(p, xs, tann, e1)
+        } else {
+          Function(p, xs, tann, subst(e1))
+        }
+      }
         
-      case Call(e1, es) => Call(subst(e1), mapFirst { (e2: Expr) => Some(subst(e2)) }(es))
+      case Call(e1, es) => Call(subst(e1), es.map(e2 => subst(e2)))
 //        if (isValue(e1)) {
 //          println("isValue: " + e1)
 //          Call(subst(e1), mapFirst { (e2: Expr) => Some(subst(e2)) }(es))
@@ -314,11 +314,11 @@ object HW4 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              case (((s1, a), b), es) => substitute(es, s1, b)
+              case (((s1, a), b), e2) => substitute(e2, s1, b)
             }
             p match {
               case None => e1p
-              case Some(x1) => substitute(e1p , x1, v1)
+              case Some(x1) => substitute(e1p, x1, v1)
             }
           }
           case _ => throw new StuckError(e)
@@ -330,8 +330,14 @@ object HW4 extends js.util.JsApp {
       case BinOp(Times, Num(n1), Num(n2)) => Num(n1 * n2)
       case BinOp(Div, Num(n1), Num(n2)) => Num(n1 / n2)
       
+      
       // DoIf
-      case If(Bool(b1), e2, e3) => if (b1) step(e2) else step(e3)
+      case If(Bool(b1), e2, e3) => if (b1) e2 else e3
+      
+      // DoInequalNum
+      // DoIntequalStr
+      // DoGetField
+      case GetField(Obj(xs), f) => xs.getOrElse(f, Undefined)
         
       /* Inductive Cases: Search Rules */
       case Print(e1) => Print(step(e1))
