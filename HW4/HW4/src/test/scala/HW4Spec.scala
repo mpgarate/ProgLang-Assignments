@@ -29,6 +29,21 @@ class HW4Spec extends FlatSpec {
     assert(!strictlyOrdered(treeFromList(List(1,1,2))))
     assert(strictlyOrdered(treeFromList(List(1,2))))
   } 
-
+  
   // Probably you want to write some tests for typeInfer, substitute, and step.
+  
+  // step
+  
+  "objects" should "have accessible properties" in {
+    val obj = Obj(Map("a" -> Bool(true)))
+    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
+    assert(Bool(true) == iterateStep(exp))
+  }
+  
+  "functions" should "have multiple parameters" in {
+    val fnExpr = BinOp(Times, Var("n1"), Var("n2"))
+    val fn = Function(Some("times"), List("n1" -> TNumber, "n2" -> TNumber), None, fnExpr)
+    
+    assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
+  }
 }
