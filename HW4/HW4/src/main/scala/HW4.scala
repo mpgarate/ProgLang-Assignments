@@ -242,6 +242,11 @@ object HW4 extends js.util.JsApp {
   
   def substitute(e: Expr, x: String, v: Expr): Expr = {
     require(isValue(v) && closed(v))
+    println("------ SUBS ------")
+    println("e: " + e)
+    println("x: " + x)
+    println("v: " + v)
+    println("------/SUBS ------")
     
     def subst(e: Expr): Expr = substitute(e, x, v)
     
@@ -251,32 +256,40 @@ object HW4 extends js.util.JsApp {
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
       case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
-      case Var(y) => if (x == y) v else e
+      case Var(y) => { 
+        if (x == y) {
+          println("substing " + x + " with " + v)
+          v
+         } else e
+      }
       case ConstDecl(y, e1, e2) => ConstDecl(y, subst(e1), if (x == y) e2 else subst(e2))
-      case Function(p, xs, tann, e1) => {
-        if (x == xs || Some(x) == p){
-          Function(p, xs, tann, e1)
-        } else {
-          Function(p, xs, tann, subst(e1))
-        }
-      }
+      case Function(p, xs, tann, e1) => Function(p, xs, tann, subst(e1))
+//        if (x == xs || Some(x) == p){
+//          Function(p, xs, tann, e1)
+//        } else {
+//          Function(p, xs, tann, subst(e1))
+//        }
+//      }
         
-      case Call(e1, es) => {
-        if (isValue(e1)) {
-          Call(e1, es.map { e2 => if(isValue(e2)) e2 else subst(e2)})
-        } else {
-          Call(subst(e1), es)
-        }
-      }
-      // maybe this should use mapFirst
-      case Obj(fs) => {
-        Obj(fs.map(item => (item._1, subst(item._2))))
-      }
+      case Call(e1, es) => Call(subst(e1), mapFirst { (e2: Expr) => Some(subst(e2)) }(es))
+//        if (isValue(e1)) {
+//          println("isValue: " + e1)
+//          Call(subst(e1), mapFirst { (e2: Expr) => Some(subst(e2)) }(es))
+//        } else {
+//          println("notValue: " + e1)
+//          Call(subst(e1), es)
+//        }
+//      }
+      case Obj(fs) => Obj(fs.map{ case(str, e1) => (str, subst(e1)) })
+      
       case GetField(e1, f) => GetField(subst(e1), f)
     }
   }
   
   def step(e: Expr): Expr = {
+    println("------ STEP ------")
+    println(e)
+    println("------/STEP ------")
     require(!isValue(e))
     assume(closed(e))
     
@@ -304,7 +317,7 @@ object HW4 extends js.util.JsApp {
               case (((s1, a), b), es) => substitute(es, s1, b)
             }
             p match {
-              case None => e1p //Are we supposed to call step in Do steps?
+              case None => e1p
               case Some(x1) => substitute(e1p , x1, v1)
             }
           }
@@ -335,7 +348,10 @@ object HW4 extends js.util.JsApp {
       //search get field
       case GetField(e1, f) => GetField(step(e1),f)
       //search call2
-      //case Call(v1, e2) if (isValue(v1)) => Call(v1, step(e2)) //check whether individual values in e2 are values, and if not call it it on an individual value
+      //check whether individual values in e2 are values, and if not call it it on an individual value
+      case Call(v1, e2) if isValue(v1) => {
+        Call(v1, e2.map { case en => if(isValue(en)) en else step(en) })
+      }
       //searchCall1
       case Call(e1, e2) => Call(step(e1), e2)
       /* Everything else is a stuck error. Should not happen if e is well-typed. */
