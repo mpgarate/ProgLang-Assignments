@@ -50,4 +50,24 @@ class HW4Spec extends FlatSpec {
     assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
+  
+  "functions" should "have evaluate expressions in params list" in {
+    val fnExpr = BinOp(Times, Var("n1"), Var("n2"))
+    val fn = Function(Some("times"), List("n1" -> TNumber, "n2" -> TNumber), None, fnExpr)
+    
+    val obj = Obj(Map("a" -> Bool(true)))
+    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
+
+    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
+  }
+
+  "functions" should "be able to pass objects" in {
+    val fnExpr = BinOp(Times, Var("n1"), GetField(Var("n2"), "n"))
+    val fn = Function(Some("times"), List("n1" -> TNumber, "n2" -> TObj(Map("n"-> TNumber))), None, fnExpr)
+    
+    val obj = Obj(Map("a" -> Num(6)))
+
+    assert(Num(18) == iterateStep(Call(fn, List(Num(3), Obj(Map("a" -> Num(6)))  ))))
+  }
+  
 }
