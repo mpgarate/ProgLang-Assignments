@@ -32,7 +32,22 @@ class HW4Spec extends FlatSpec {
   
   // Probably you want to write some tests for typeInfer, substitute, and step.
   
-  // step
+  
+  "substitute" should "replace references in object properties" in {
+    val obj = Obj(Map("a" -> BinOp(Times,Var("x"),Num(20))))
+    val exp = ConstDecl("x", Num(3), GetField(obj, "a"))
+    
+    assert(Num(60) == iterateStep(exp))
+  }
+  
+  "substitute" should "replace references in function param lists" in {
+    val fnExpr = BinOp(Minus, Var("a"), Var("b"))
+    val fn = Function(Some("minus"), List("a" -> TNumber, "b" -> TNumber), None, fnExpr)
+    val e2 = ConstDecl("b", Num(5), Call(fn, List(Var("a"), Var("b"))))
+    val e1 = ConstDecl("a", Num(20), e2)
+    
+    assert(Num(15) == iterateStep(e1))
+  }
   
   "objects" should "have accessible properties" in {
     val obj = Obj(Map("a" -> Bool(true)))
@@ -67,7 +82,7 @@ class HW4Spec extends FlatSpec {
     
     val obj = Obj(Map("a" -> Num(6)))
 
-    assert(Num(18) == iterateStep(Call(fn, List(Num(3), Obj(Map("a" -> Num(6)))  ))))
+    assert(Num(18) == iterateStep(Call(fn, List(Num(3), Obj(Map("n" -> Num(6)))))))
   }
   
 }
