@@ -32,6 +32,17 @@ class HW4Spec extends FlatSpec {
   
   // Probably you want to write some tests for typeInfer, substitute, and step.
   
+  "typeInfer" should "throw an exception for unresolvable type" in {
+    try{
+      typeInfer(Map.empty, BinOp(Plus, Num(3), Print(Str("hi"))))
+      fail()
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
+    
+  }
+  
   
   "substitute" should "replace references in object properties" in {
     val obj = Obj(Map("a" -> BinOp(Times,Var("x"),Num(20))))
