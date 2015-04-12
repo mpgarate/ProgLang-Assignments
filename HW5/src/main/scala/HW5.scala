@@ -1,0 +1,384 @@
+import js.util.State
+
+object HW5 extends js.util.JsApp {
+  import js.hw5.ast._
+  import js.hw5._
+  import js.util._
+  
+  /*
+   * CSCI-UA.0480-006: Homework 5
+   * <Your Name>
+   * 
+   * Partner: <Your Partner's Name>
+   * Collaborators: <Any Collaborators>
+   */
+
+
+  /*
+   * Fill in the appropriate portions above by replacing things delimited
+   * by '<'... '>'.
+   * 
+   * Replace the '???' expression with your code in each function.
+   *
+   * Do not make other modifications to this template, such as
+   * - adding "extends App" or "extends Application" to your Lab object,
+   * - adding a "main" method, and
+   * - leaving any failing asserts.
+   * 
+   * Your solution will _not_ be graded if it does not compile!!
+   * 
+   * This template compiles without error. Before you submit comment out any
+   * code that does not compile or causes a failing assert.  Simply put in a
+   * '???' as needed to get something that compiles without error.
+   *
+   */
+  
+  
+  /*** Type Inference ***/
+  
+  def hasFunctionTyp(t: Typ): Boolean = t match {
+    case TFunction(_, _) => true
+    case TObj(fs) if (fs exists { case (_, t) => hasFunctionTyp(t) }) => true
+    case _ => false
+  } 
+    
+  def mut(m: PMode): Mut = m match {
+    case PName | PConst => MConst
+    case PVar | PRef => MVar
+  }
+  
+  def typeInfer(env: Map[String,(Mut,Typ)], e: Expr): Typ = {
+    def typ(e1: Expr) = typeInfer(env, e1)
+    def err[T](tgot: Typ, e1: Expr): T = throw new StaticTypeError(tgot, e1)
+
+    e match {
+      case Print(e1) => typ(e1); TUndefined
+      case Num(_) => TNumber
+      case Bool(_) => TBool
+      case Undefined => TUndefined
+      case Str(_) => TString
+      case Var(x) =>
+        val (_, t) = env(x)
+        t
+      case UnOp(UMinus, e1) => typ(e1) match {
+        case TNumber => TNumber
+        case tgot => err(tgot, e1)
+      }
+      case UnOp(Not, e1) => typ(e1) match {
+        case TBool => TBool
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(Plus, e1, e2) => typ(e1) match {
+        case TNumber => typ(e2) match {
+          case TNumber => TNumber
+          case tgot => err(tgot, e2)
+        }
+        case TString => typ(e2) match {
+          case TString => TString
+          case tgot => err(tgot, e2)
+        }
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(Minus|Times|Div, e1, e2) => typ(e1) match {
+        case TNumber => typ(e2) match {
+          case TNumber => TNumber
+          case tgot => err(tgot, e2)
+        }
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
+        case t1 if !hasFunctionTyp(t1) => typ(e2) match {
+          case t2 if (t1 == t2) => TBool
+          case tgot => err(tgot, e2)
+        }
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(Lt|Le|Gt|Ge, e1, e2) => typ(e1) match {
+        case TNumber => typ(e2) match {
+          case TNumber => TBool
+          case tgot => err(tgot, e2)
+        }
+        case TString => typ(e2) match {
+          case TString => TBool
+          case tgot => err(tgot, e2)
+        }
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(And|Or, e1, e2) => typ(e1) match {
+        case TBool => typ(e2) match {
+          case TBool => TBool
+          case tgot => err(tgot, e2)
+        }
+        case tgot => err(tgot, e1)
+      }
+      case BinOp(Seq, e1, e2) => typ(e1); typ(e2)
+      case If(e1, e2, e3) => typ(e1) match {
+        case TBool =>
+          val (t2, t3) = (typ(e2), typ(e3))
+          if (t2 == t3) t2 else err(t3, e3)
+        case tgot => err(tgot, e1)
+      }
+      case Obj(fs) => TObj(fs map { case (f,t) => (f, typ(t)) })
+      case GetField(e1, f) => typ(e1) match {
+        case TObj(tfs) if (tfs.contains(f)) => tfs(f)
+        case tgot => err(tgot, e1)
+      } 
+      
+      case Function(p, xs, tann, e1) => {
+        // Bind to env1 an environment that extends env with an appropriate binding if
+        // the function is potentially recursive.
+        val env1 = (p, tann) match {
+          case (Some(f), Some(rt)) =>
+            val tprime = TFunction(xs, rt)
+            env + (f -> (MConst, tprime))
+          case (None, _) => env
+          case _ => err(TUndefined, e1)
+        }
+        // Bind to env2 an environment that extends env1 with the parameters.
+        val env2 = ???
+        // Infer the type of the function body
+        val t1 = typeInfer(env2, e1)
+        tann foreach { rt => if (rt != t1) err(t1, e1) };
+        TFunction(xs, t1)
+      }
+      
+      case Call(e1, args) => typ(e1) match {
+        case TFunction(xs, tret) if (xs.length == args.length) => {
+          (xs, args).zipped.foreach {
+            ???
+          }
+          tret
+        }
+        case tgot => err(tgot, e1)
+      }
+      
+      /*** Fill-in more cases here. ***/
+        
+      /* Should not match: non-source expressions */
+      case Addr(_) | UnOp(Deref, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
+    }
+  }
+  
+  /*** Small-Step Interpreter ***/
+  
+  /* Do the operation for an inequality. */
+  def inequalityVal(bop: Bop, v1: Expr, v2: Expr): Boolean = {
+    require(bop == Lt || bop == Le || bop == Gt || bop == Ge)
+    ((v1, v2): @unchecked) match {
+      case (Str(s1), Str(s2)) =>
+        (bop: @unchecked) match {
+          case Lt => s1 < s2
+          case Le => s1 <= s2
+          case Gt => s1 > s2
+          case Ge => s1 >= s2
+        }
+      case (Num(n1), Num(n2)) =>
+        (bop: @unchecked) match {
+          case Lt => n1 < n2
+          case Le => n1 <= n2
+          case Gt => n1 > n2
+          case Ge => n1 >= n2
+        }
+    }
+  }
+  
+  /* Capture-avoiding substitution in e replacing variables x with esub. */
+  def substitute(e: Expr, x: String, esub: Expr): Expr = {
+    def subst(e: Expr): Expr = substitute(e, x, esub)
+    val ep: Expr = ???
+    ep match {
+      case Num(_) | Bool(_) | Undefined | Str(_) | Addr(_) => e
+      case Print(e1) => Print(subst(e1))
+      case UnOp(uop, e1) => UnOp(uop, subst(e1))
+      case BinOp(bop, e1, e2) => BinOp(bop, subst(e1), subst(e2))
+      case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
+      case Var(y) => if (x == y) esub else e
+      case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
+      case Function(p, xs, tann, e) =>
+        ???
+      case Call(e1, args) => Call(subst(e1), args map subst)
+      case Obj(fs) => Obj(fs mapValues (subst(_)))
+      case GetField(e, f) => GetField(subst(e), f)
+    }
+  }
+
+  /* A small-step transition. */
+  def step(e: Expr): State[Mem, Expr] = {
+    require(!isValue(e), "stepping on a value: %s".format(e))
+    
+    /*** Helpers for Call ***/
+    
+    def stepIfNotValue(e: Expr): Option[State[Mem,Expr]] = 
+      if (isValue(e)) None else Some(step(e))
+    
+    /* Check whether or not the argument expression is ready to be applied. */
+    def argApplyable(mode: PMode, arg: Expr): Boolean = mode match {
+      case PConst | PVar => isValue(arg)
+      case PName => true
+      case PRef => isLValue(arg)
+    }
+
+    /*** Body ***/
+    e match {
+      /* Base Cases: Do Rules */
+      case Print(v1) if isValue(v1) => 
+        for (m <- State[Mem]) yield { println(v1.prettyVal(m)); Undefined }
+      case UnOp(UMinus, Num(n1)) => 
+        State.insert( Num(- n1) )
+      case UnOp(Not, Bool(b1)) => 
+        State.insert( Bool(! b1) )
+      case BinOp(Seq, v1, e2) if isValue(v1) => 
+        State.insert( e2 )
+      case BinOp(Plus, Str(s1), Str(s2)) => 
+        State.insert( Str(s1 + s2) )
+      case BinOp(Plus, Num(n1), Num(n2)) => 
+        State.insert( Num(n1 + n2) )
+      case BinOp(bop @ (Lt|Le|Gt|Ge), v1, v2) if isValue(v1) && isValue(v2) => 
+        State.insert( Bool(inequalityVal(bop, v1, v2)) )
+      case BinOp(Eq, v1, v2) if isValue(v1) && isValue(v2) => 
+        State.insert( Bool(v1 == v2) )
+      case BinOp(Ne, v1, v2) if isValue(v1) && isValue(v2) => 
+        State.insert( Bool(v1 != v2) )
+      case BinOp(And, Bool(b1), e2) => 
+        State.insert( if (b1) e2 else Bool(false) )
+      case BinOp(Or, Bool(b1), e2) => 
+        State.insert( if (b1) Bool(true) else e2 )
+      case BinOp(Minus, Num(n1), Num(n2)) => 
+        State.insert( Num(n1 - n2) )
+      case BinOp(Times, Num(n1), Num(n2)) => 
+        State.insert( Num(n1 * n2) )
+      case BinOp(Div, Num(n1), Num(n2)) => 
+        State.insert( Num(n1 / n2) )
+      case If(Bool(b1), e2, e3) => 
+        State.insert( if (b1) e2 else e3 )
+      case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
+        ???
+      case GetField(a @ Addr(_), f) =>
+        ???
+      case Call(v @ Function(p, _, _, e), Nil) => 
+        /*** Fill-in the DoCall and DoCallRec cases */
+        val ep = p match {
+          case None => e
+          case Some(x) => substitute(e, x, v)
+        }
+        ???
+      case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
+        (m, arg) match {
+          /*** Fill-in the remaining DoCall cases  ***/
+          case _ => throw StuckError(e)
+        } 
+      
+      case Decl(MConst, x, v1, e2) if isValue(v1) =>
+        ???
+      case Decl(MVar, x, v1, e2) if isValue(v1) =>
+        ???
+
+      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
+        for (_ <- State.modify { (m: Mem) => (???): Mem }) yield v
+        
+      /*** Fill-in more Do cases here. ***/
+        
+      /* Inductive Cases: Search Rules */
+      case Print(e1) =>
+        for (e1p <- step(e1)) yield Print(e1p)
+      case UnOp(uop, e1) =>
+        for (e1p <- step(e1)) yield UnOp(uop, e1p)
+      case BinOp(bop, v1, e2) if isValue(v1) =>
+        for (e2p <- step(e2)) yield BinOp(bop, v1, e2p)
+      case BinOp(bop, e1, e2) =>
+        for (e1p <- step(e1)) yield BinOp(bop, e1p, e2)
+      case If(e1, e2, e3) =>
+        for (e1p <- step(e1)) yield If(e1p, e2, e3)
+      case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
+        case Some((fi,ei)) =>
+          ???
+        case None => throw StuckError(e)
+      }
+      case GetField(e1, f) => ???
+      
+      /*** Fill-in more Search cases here. ***/
+
+      /* Everything else is a stuck error. */
+      case _ => throw StuckError(e)
+    }
+  }
+
+  /*** External Interfaces ***/
+  
+  override def init() = {
+    this.debug = true // comment this out or set to false if you don't want print debugging information
+    this.maxSteps = Some(500) // comment this out or set to None to not bound the number of steps.
+  }
+  
+  def inferType(e: Expr): Typ = {
+    if (debug) {
+      println("------------------------------------------------------------")
+      println("Type checking: %s ...".format(e))
+    } 
+    val t = typeInfer(Map.empty, e)
+    if (debug) {
+      println("Type: " + print.prettyTyp(t))
+    }
+    t
+  }
+  
+  // Interface to run your small-step interpreter and print out the steps of evaluation if debugging. 
+  
+  case class TerminationError(e: Expr) extends JsException("TerminationError: ran out of steps during evaluation", e.pos)
+  
+  def iterateStep(e: Expr): Expr = {
+    require(closed(e), "not a closed expression: free variables: %s".format(fv(e)) )
+    def loop(e: Expr, n: Int): State[Mem,Expr] =
+      if (Some(n) == maxSteps) throw TerminationError(e)
+      else if (isValue(e)) State.insert( e )
+      else {
+        for {
+          m <- State[Mem]
+          _ = if (debug) { println("Step %s:%n  %s%n  %s".format(n, m, e)) }
+          ep <- step(e)
+          epp <- loop(ep, n + 1)
+        } yield
+        epp
+      }
+    if (debug) {
+      println("------------------------------------------------------------")
+      println("Evaluating with step ...")
+    }
+    val (m,v) = loop(e, 0)(Mem.empty)
+    if (debug) {
+      println("Result:%n  %s%n  %s".format(m,v))
+    }
+    v
+  }
+
+  // Convenience to pass in a js expression as a string.
+  def iterateStep(s: String): Expr = iterateStep(parse.fromString(s))
+  
+  // Interface for main
+  def processFile(file: java.io.File) {
+    if (debug) {
+      println("============================================================")
+      println("File: " + file.getName)
+      println("Parsing ...")
+    }
+    
+    val expr = handle(fail()) {
+      parse.fromFile(file)
+    }
+      
+    if (debug) {
+      println("Parsed expression:")
+      println(expr.prettyJS())
+    }
+      
+    handle(fail()) {
+      val t = inferType(expr)
+    }
+    
+    handle() {
+      val v1 = iterateStep(expr)
+      println(v1.prettyVal())
+    }
+  }
+    
+}
