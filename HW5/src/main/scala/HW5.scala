@@ -305,7 +305,7 @@ object HW5 extends js.util.JsApp {
         for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p)
       
       //SearchAssign 1 
-      case BinOp(Assign, e1, e2) =>
+      case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
         for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
         
       //SearchCallRef
