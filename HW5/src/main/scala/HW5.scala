@@ -309,8 +309,11 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
         
       //SearchCallRef
-//      case Call(v1, e2) if (isValue(v1)) =>
-//        for (e2p <- ???) yield Call(v1,e2p)
+      case Call(v1, e2) if (isValue(v1)) => ???
+//        var found = true;
+//        e2.foreach(x => if (isValue(x)) found = false else step(x)
+        
+//        for (e2p <- e2) yield for(e2pp <- step(e2p)) yield Call(v1,e2p)
       
       //SearchCallFun
       case Call(e1, e2) =>
@@ -319,6 +322,7 @@ object HW5 extends js.util.JsApp {
         
       //SearchCallVarConst
       
+        
       // ^^I think thats all the search rules
       
       /* Everything else is a stuck error. */
