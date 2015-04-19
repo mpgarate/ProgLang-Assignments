@@ -30,6 +30,16 @@ class HW5Spec extends FlatSpec {
     assert(Num(10) == iterateStep(exp))
   }
   
+  "MVar" should "allow for nested assignments" in {
+    //I think that's written right...
+    val exp4 = BinOp(Plus, Var("y"), Var("x"))
+    val exp3 = BinOp(Assign, Var("x"),Num(3))
+    val exp2 = Decl(MVar, "y", Num(2), BinOp(Seq, BinOp(Assign,Var("y"),exp3), exp4))
+    val exp1 = Decl(MVar, "x", Num(2), exp2)
+    
+    assert(Num(6) == iterateStep(exp1))
+  }
+  
   "MConst" should "not allow for mutations" in {
     val exp = Decl(MConst, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
 //    fill in what the error would be...
