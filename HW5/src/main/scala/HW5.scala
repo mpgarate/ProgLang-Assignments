@@ -287,8 +287,7 @@ object HW5 extends js.util.JsApp {
 //        mp.flatMap { a => ??? }
 ////        substitute(e2, x, UnOp(Deref, a))
 
-        Mem.alloc(v1)
-        ???
+        Mem.alloc(v1).map { a => UnOp(Deref, a) }
         
       //DoAssignField?
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
@@ -297,8 +296,9 @@ object HW5 extends js.util.JsApp {
       /*** Fill-in more Do cases here. ***/
         
       //DoDeref
-        
-     
+      case UnOp(Deref, a @ Addr(_)) => 
+//        State.apply {(m:Mem) => if(m.contains(a)) { m.get(a)} }
+        ???
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
