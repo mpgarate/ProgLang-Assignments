@@ -297,8 +297,11 @@ object HW5 extends js.util.JsApp {
         
       //DoDeref
       case UnOp(Deref, a @ Addr(_)) => 
-//        State.apply {(m:Mem) => if(m.contains(a)) { m.get(a)} }
-        ???
+        for {
+          m <- State[Mem]
+          val data = m.get(a)
+        } yield data.get
+          
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
