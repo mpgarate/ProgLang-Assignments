@@ -293,6 +293,7 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield If(e1p, e2, e3)
       case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
         case Some((fi,ei)) =>
+          // Obj((for (e1p <- step(ei)) yield (fi -> e1p)))
           ???
         case None => throw StuckError(e)
       }
@@ -301,6 +302,9 @@ object HW5 extends js.util.JsApp {
       /*** Fill-in more Search cases here. ***/
       
       //SearchConst
+      case Decl(m, x, e1, e2) => {
+        for (e1p <- step(e1)) yield Decl(m, x, e1, e2)
+      }
       
       //SearchAssign 2 
       case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
