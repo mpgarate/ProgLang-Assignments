@@ -253,8 +253,9 @@ object HW5 extends js.util.JsApp {
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
         ??? //Mem.alloc(k)
-      case GetField(a @ Addr(_), f) =>
+      case GetField(a @ Addr(_), f) => 
         ??? //State.insert()
+        
       case Call(v @ Function(p, _, _, e), Nil) => 
         /*** Fill-in the DoCall and DoCallRec cases */
         val ep = p match {
@@ -271,6 +272,8 @@ object HW5 extends js.util.JsApp {
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
         State.insert(substitute(e2,x, v1)) //not tested yet
         //State.modify( ... substitute(e2, x, v1)
+        
+      // DoAssignVar
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
 //        val mp = Mem.alloc(v1)
 //        mp.flatMap { x => ??? }
@@ -295,14 +298,18 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield If(e1p, e2, e3)
       case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
         case Some((fi,ei)) =>
+          // Obj((for (e1p <- step(ei)) yield (fi -> e1p)))
           ???
         case None => throw StuckError(e)
       }
-      case GetField(e1, f) => ???
+      case GetField(e1, f) => for (e1p <- step(e1)) yield GetField(e1p, f)
       
       /*** Fill-in more Search cases here. ***/
       
       //SearchConst
+      case Decl(m, x, e1, e2) => {
+        for (e1p <- step(e1)) yield Decl(m, x, e1, e2)
+      }
       
       //SearchAssign 2 
       case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
@@ -326,7 +333,6 @@ object HW5 extends js.util.JsApp {
       
         
       //SearchCallVarConst
-      
         
       // ^^I think thats all the search rules
       
