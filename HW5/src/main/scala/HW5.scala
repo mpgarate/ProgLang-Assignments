@@ -269,8 +269,8 @@ object HW5 extends js.util.JsApp {
         } 
       
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
-        //println("x: " + x + "\nv1: " + v1 + "\ne2: " + e2)
-        ??? //State.modify( ... substitute(e2, x, v1)
+        State.insert(substitute(e2,x, v1)) //not tested yet
+        //State.modify( ... substitute(e2, x, v1)
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
         ??? // State.modify(
 
