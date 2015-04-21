@@ -270,10 +270,10 @@ object HW5 extends js.util.JsApp {
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-         //DoCallConst
-          //DoCallName
-          //DoCallRef
-          //DoCallVar
+          case (PConst, arg) => ???
+          case (PName, arg) => ???
+          case (PRef, arg) => ???
+          case (PVar, arg) => Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
           case _ => throw StuckError(e)
         } 
       
