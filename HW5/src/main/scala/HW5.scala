@@ -314,7 +314,7 @@ object HW5 extends js.util.JsApp {
       case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
         case Some((fi,ei)) =>
           //for (e1p <- step(ei)) yield Obj(Map(fi -> e1p))
-          for (e1p <- step(ei)) yield Obj(fs + (fi -> e1p))
+          for (e1p <- step(ei)) yield Obj(fs.updated(fi, e1p))
 
         case None => throw StuckError(e)
       }
