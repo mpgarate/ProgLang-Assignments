@@ -299,8 +299,12 @@ object HW5 extends js.util.JsApp {
       case UnOp(Deref, a @ Addr(_)) => 
         for {
           m <- State[Mem]
+          // TODO: check data (an option type) and throw a nice exception if 
+          // it is None. 
           val data = m.get(a)
         } yield data.get
+        
+        
           
         
       /* Inductive Cases: Search Rules */
