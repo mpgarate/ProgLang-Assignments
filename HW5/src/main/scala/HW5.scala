@@ -313,8 +313,9 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield If(e1p, e2, e3)
       case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
         case Some((fi,ei)) =>
-          // Obj((for (e1p <- step(ei)) yield (fi -> e1p)))
-          ???
+          //for (e1p <- step(ei)) yield Obj(Map(fi -> e1p))
+          for (e1p <- step(ei)) yield Obj(fs.updated(fi, e1p))
+
         case None => throw StuckError(e)
       }
       case GetField(e1, f) => for (e1p <- step(e1)) yield GetField(e1p, f)
@@ -323,7 +324,7 @@ object HW5 extends js.util.JsApp {
       
       //SearchConst
       case Decl(m, x, e1, e2) => {
-        for (e1p <- step(e1)) yield Decl(m, x, e1, e2)
+        for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
       //SearchAssign 2 
