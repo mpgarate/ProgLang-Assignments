@@ -253,8 +253,9 @@ object HW5 extends js.util.JsApp {
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
         ??? //Mem.alloc(k)
-      case GetField(a @ Addr(_), f) =>
+      case GetField(a @ Addr(_), f) => 
         ??? //State.insert()
+        
       case Call(v @ Function(p, _, _, e), Nil) => 
         /*** Fill-in the DoCall and DoCallRec cases */
         val ep = p match {
@@ -295,7 +296,7 @@ object HW5 extends js.util.JsApp {
           ???
         case None => throw StuckError(e)
       }
-      case GetField(e1, f) => ???
+      case GetField(e1, f) => for (e1p <- step(e1)) yield GetField(e1p, f)
       
       /*** Fill-in more Search cases here. ***/
       
