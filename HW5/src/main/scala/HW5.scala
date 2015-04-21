@@ -334,20 +334,20 @@ object HW5 extends js.util.JsApp {
       case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
         for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
         
-      //SearchCallRef
-      case Call(v1, e2) if (isValue(v1)) => 
-        ???
-//        var found = true
-//        e2.foreach(x => if (isValue(x)) found = false else step(x)
-        
-//        for (e2p <- e2) yield for(e2pp <- step(e2p)) yield Call(v1,e2p)
-      
+
       //SearchCallFun
       case Call(e1, e2) =>
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
-      //SearchCallVarConst
+      case Call(Function(p, (m, _, _) :: xs, tann, e), arg :: e2) =>
+        (m, arg) match {
+          //SearchCallVarConst
+          case ((PConst | PVar), arg) => ???
+          case (PName, arg) => ???
+          //SearchCallPRef
+          case (PRef, arg) if (isLValue(arg)) => ???
+        } 
         
       // ^^I think thats all the search rules
       
