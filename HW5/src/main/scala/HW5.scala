@@ -252,6 +252,7 @@ object HW5 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
+        Mem.alloc(e)
         ??? //Mem.alloc(k)
       case GetField(a @ Addr(_), f) => 
         ??? //State.insert()
@@ -275,6 +276,7 @@ object HW5 extends js.util.JsApp {
         
       // DoAssignVar
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
+        Mem.alloc(v1)
         ??? // State.modify(
 
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
