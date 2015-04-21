@@ -272,7 +272,10 @@ object HW5 extends js.util.JsApp {
         State.insert(substitute(e2,x, v1)) //not tested yet
         //State.modify( ... substitute(e2, x, v1)
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
-        ??? // State.modify(
+//        val mp = Mem.alloc(v1)
+//        mp.flatMap { x => ??? }
+//        substitute(e2, x, UnOp(Deref, a))
+        
 
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
         for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
