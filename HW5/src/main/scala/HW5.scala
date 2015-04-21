@@ -269,12 +269,13 @@ object HW5 extends js.util.JsApp {
         } 
       
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
+        //println("x: " + x + "\nv1: " + v1 + "\ne2: " + e2)
         ??? //State.modify( ... substitute(e2, x, v1)
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
         ??? // State.modify(
 
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
-        for (_ <- State.modify { (m: Mem) => (???): Mem }) yield v
+        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
         
       /*** Fill-in more Do cases here. ***/
         

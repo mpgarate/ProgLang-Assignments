@@ -66,4 +66,10 @@ class HW5Spec extends FlatSpec {
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
   
+  
+  "Assign Obj" should "change the value of the object field" in {
+   val exp = Decl ( MVar, "x", Obj (Map ("f" -> Num (7.0))), BinOp (Assign, GetField (Var ("x"), "f"), Num (10.0)))
+   assert(Num(10) == iterateStep(exp))
+  }
+  
 }
