@@ -324,7 +324,7 @@ object HW5 extends js.util.JsApp {
       
       //SearchConst
       case Decl(m, x, e1, e2) => {
-        for (e1p <- step(e1)) yield Decl(m, x, e1, e2)
+        for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
       //SearchAssign 2 
