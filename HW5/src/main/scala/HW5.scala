@@ -252,9 +252,12 @@ object HW5 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
-        Mem.alloc(e)
-        ??? //Mem.alloc(k)
+        for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
+//        Mem.alloc(e).map { a => UnOp(Deref, a)}
+        // what is "k" referring to?
+         //Mem.alloc(k)
       case GetField(a @ Addr(_), f) => 
+        State.apply {(m: Mem) => m.get(a)}
         ??? //State.insert()
         
       case Call(v @ Function(p, _, _, e), Nil) => 
