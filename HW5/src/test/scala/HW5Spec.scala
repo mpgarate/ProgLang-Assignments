@@ -72,4 +72,126 @@ class HW5Spec extends FlatSpec {
    assert(Num(10) == iterateStep(exp))
   }
   
+  "DoCall" should "evaluate a function without parameters" in {
+    val exp = Decl (MConst, "func", Function (None, Nil, None, BinOp (Plus, Num (1.0), Num (1.0))),
+    Call (Var ("func"), Nil))
+    assert(Num(2) == iterateStep(exp))
+  }
+  
+  "DoRecCall" should "allow user to call recursive functions" in {
+     val exp = Decl (
+      MConst ,
+      "func",
+      Function (
+        Some ("sum"),
+        List (Tuple3 (PConst , "n", TNumber )),
+        Some (TNumber ),
+        If (
+          BinOp (Gt, Var ("n"), Num (0.0)),
+          BinOp (
+            Plus,
+            Call (
+              Var ("sum"),
+              List (BinOp (Minus, Var ("n"), Num (1.0)))),
+            Var ("n")),
+          Num (0.0))),
+      Call (Var ("func"), List (Num (5.0))))
+    assert(Num(15) == iterateStep(exp))
+  }
+  
+  "DoCallConst" should "not allow parameter redeclerations" in {
+    
+  }
+  
+  "DoCallConst" should "evaluate parameters before passing them in" in {
+    val exp = Decl (
+      MConst,
+      "f",
+      Function (
+        None,
+        List (Tuple3 (PConst, "x", TNumber)),
+        None,
+        BinOp (Plus, Var ("x"), Var ("x"))),
+      Decl (
+        MVar,
+        "y",
+        Num (3.0),
+        Decl (
+          MConst,
+          "r",
+          Call (
+            Var ("f"),
+            List (
+              BinOp (
+                Assign,
+                Var ("y"),
+                BinOp (Plus, Var ("y"), Num (1.0))))),
+          Var ("y"))))
+    assert(Num(4) == iterateStep(exp))
+  }
+  "DoCalName" should "evaluate parameters each time they are used in the function" in {
+    val exp = Decl (
+      MConst,
+      "f",
+      Function (
+        None, List (Tuple3 (PName, "x", TNumber)), None, BinOp (Plus, Var ("x"), Var ("x"))),
+      Decl (
+        MVar,
+        "y",
+        Num (3.0),
+        Decl (
+          MConst,
+          "r",
+          Call (
+            Var ("f"),
+            List (
+              BinOp (
+                Assign,
+                Var ("y"),
+                BinOp (Plus, Var ("y"), Num (1.0))))),
+          Var("y"))))
+    assert(Num(5) == iterateStep(exp))
+  }
+  "DoCallVar" should "allow for mutable parameters" in {
+    val exp = Decl (
+      MConst,
+      "f",
+      Function (
+        None,
+        List (Tuple3 (PVar, "x", TNumber)),
+        None,
+        BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
+      Decl (MVar, "y", Num (3.0), Call (Var ("f"), List (Var ("y")))))
+    assert (Num(4) == iterateStep(exp))
+  }
+  
+  "DoCallRef" should "pass by reference " in {
+    val exp = Decl (
+      MConst,
+      "f",
+      Function (
+        None,
+        List (Tuple3 (PRef, "x", TNumber)),
+        None,
+        BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
+      Decl (
+        MVar,
+        "y",
+        Num (3.0),
+        BinOp (Seq, Call (Var ("f"), List (Var ("y"))), Var ("y"))))
+    assert(Num(4) == iterateStep(exp))
+  }
+  
+  "doCallRef" should "not allow non location expressions to be assigned" in {
+    val exp = Decl (
+      MConst,
+      "f",
+      Function (
+        None,
+        List (Tuple3 (PRef, "x", TNumber)),
+        None,
+        BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
+      Decl (MConst, "y", Num (3.0), Call (Var ("f"), List (Var ("y")))))
+    //not sure what error should be called
+  }
 }

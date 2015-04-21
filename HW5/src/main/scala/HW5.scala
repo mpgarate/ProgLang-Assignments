@@ -252,8 +252,12 @@ object HW5 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
-        ??? //Mem.alloc(k)
+        for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
+//        Mem.alloc(e).map { a => UnOp(Deref, a)}
+        // what is "k" referring to?
+         //Mem.alloc(k)
       case GetField(a @ Addr(_), f) => 
+        State.apply {(m: Mem) => m.get(a)}
         ??? //State.insert()
         
       case Call(v @ Function(p, _, _, e), Nil) => 
@@ -266,6 +270,10 @@ object HW5 extends js.util.JsApp {
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
+         //DoCallConst
+          //DoCallName
+          //DoCallRef
+          //DoCallVar
           case _ => throw StuckError(e)
         } 
       
@@ -276,14 +284,21 @@ object HW5 extends js.util.JsApp {
       // DoAssignVar
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
 //        val mp = Mem.alloc(v1)
-//        mp.flatMap { x => ??? }
-//        substitute(e2, x, UnOp(Deref, a))
-        
+//        mp.flatMap { a => ??? }
+////        substitute(e2, x, UnOp(Deref, a))
 
+        Mem.alloc(v1)
+        ???
+        
+      //DoAssignField?
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
         for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
         
       /*** Fill-in more Do cases here. ***/
+        
+      //DoDeref
+        
+     
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
