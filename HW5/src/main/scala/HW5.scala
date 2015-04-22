@@ -135,7 +135,11 @@ object HW5 extends js.util.JsApp {
           case _ => err(TUndefined, e1)
         }
         // Bind to env2 an environment that extends env1 with the parameters.
-        val env2 = ???
+        val env2 = 
+          xs.map(tup => tup match {
+            case ((PConst | PName), s, t) => (s -> (MConst, t))
+            case (_, s, t) => (s -> (MVar, t))
+          })
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
         tann foreach { rt => if (rt != t1) err(t1, e1) };
