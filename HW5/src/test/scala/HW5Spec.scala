@@ -41,7 +41,14 @@ class HW5Spec extends FlatSpec {
   }
   
   "MConst" should "not allow for mutations" in {
-    val exp = Decl(MConst, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
+    try{
+      val exp = Decl(MConst, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
+      iterateStep(exp);
+      fail()
+    }
+//    catch {
+//      ???
+//    }
 //    fill in what the error would be...
   }
   
