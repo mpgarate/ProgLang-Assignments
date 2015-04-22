@@ -71,6 +71,14 @@ class HW5Spec extends FlatSpec {
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
   
+  "functions" should "have more than 3 parameters" in {
+    val fnExpr = BinOp(Plus, Var("n1"), BinOp(Plus, Var("n2"), BinOp(Plus, Var("n3"), Var("n4"))))
+    val paramList = List((PConst, "n1", TNumber), (PConst,"n2", TNumber), (PConst, "n3", TNumber), (PConst,"n4", TNumber))
+    val fn = Function(Some("plusMany"), paramList, None, fnExpr)
+    
+    assert(Num(16) == iterateStep(Call(fn, List(Num(1), Num(3), Num(5), Num(7)))))
+  }
+  
   "PRef" should "pass by reference" in {
     val fnExpr = BinOp(Assign, Var("b1"), Bool(false)) //is this right?
     val fn = Function(Some("times"), List((PRef, "b1", TBool)), None, fnExpr)

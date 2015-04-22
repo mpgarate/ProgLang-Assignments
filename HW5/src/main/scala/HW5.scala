@@ -215,6 +215,7 @@ object HW5 extends js.util.JsApp {
   
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
+    println("substitute " + x + " for " + esub)
     def subst(e: Expr): Expr = substitute(e, x, esub)
     val ep: Expr = e
     ep match {
@@ -305,7 +306,12 @@ object HW5 extends js.util.JsApp {
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-          case (PConst, arg) => ???
+          case (PConst, arg) => {
+            // TODO: rewrite this in a more functional style
+            var expr = substitute(e, x, arg)
+            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
+            State.insert(expr)
+          }
           case (PName, arg) => ???
           case (PRef, arg) => ???
           case (PVar, arg) => Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
@@ -313,7 +319,7 @@ object HW5 extends js.util.JsApp {
         } 
       
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
-        State.insert(substitute(e2,x, v1)) //not tested yet
+        State.insert(substitute(e2, x, v1)) //not tested yet
         //State.modify( ... substitute(e2, x, v1)
         
       // DoAssignVar
