@@ -135,11 +135,11 @@ object HW5 extends js.util.JsApp {
           case _ => err(TUndefined, e1)
         }
         // Bind to env2 an environment that extends env1 with the parameters.
-        val env2 = 
-          xs.map(tup => tup match { //not sure what to use. maybe use flatmap? somehow need to add env1 as well
-            case ((PConst | PName), s, t) => (s -> (MConst, t))
-            case (_, s, t) => (s -> (MVar, t))
-          })
+        val env2 = ???
+//          xs.map(tup => tup match { //not sure what to use. maybe use flatmap? somehow need to add env1 as well
+//            case ((PConst | PName), s, t) => (s -> (MConst, t))
+//            case (_, s, t) => (s -> (MVar, t))
+//          })
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
         tann foreach { rt => if (rt != t1) err(t1, e1) };
@@ -175,7 +175,13 @@ object HW5 extends js.util.JsApp {
         } 
       }
       //TypeAssignField
-      case BinOp(Assign, UnOp(Deref,a), e2) => ???
+      case BinOp(Assign, GetField(obj, f), e2) => typ(obj) match {
+        case TObj(tfs) if (tfs.contains(f)) => {
+          val te2 = typ(e2);
+          if (te2 == tfs(f)) te2 else err(te2, e2)
+        }
+        case tgot => err(tgot, GetField(obj, f))
+      }
       
       
       
@@ -385,7 +391,7 @@ object HW5 extends js.util.JsApp {
       
         
       case Call(func @ Function(_, (m, _, _) :: xs, tann, e), e2) =>
-        
+        ???
 //        (m, arg) match {
 //          //SearchCallVarConst
 //          case ((PConst | PVar), arg) => ???
