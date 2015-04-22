@@ -193,8 +193,9 @@ object HW5 extends js.util.JsApp {
   
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
+    println("in substitute")
     def subst(e: Expr): Expr = substitute(e, x, esub)
-    val ep: Expr = ???
+    val ep: Expr = e
     ep match {
       case Num(_) | Bool(_) | Undefined | Str(_) | Addr(_) => e
       case Print(e1) => Print(subst(e1))
@@ -204,7 +205,8 @@ object HW5 extends js.util.JsApp {
       case Var(y) => if (x == y) esub else e
       case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e) =>
-        ???
+        // we probably also want to subst within each expr in xs
+        Function(p, xs, tann, subst(e))
       case Call(e1, args) => Call(subst(e1), args map subst)
       case Obj(fs) => Obj(fs mapValues (subst(_)))
       case GetField(e, f) => GetField(subst(e), f)
@@ -213,6 +215,8 @@ object HW5 extends js.util.JsApp {
 
   /* A small-step transition. */
   def step(e: Expr): State[Mem, Expr] = {
+    println("in step")
+    println(e)
     require(!isValue(e), "stepping on a value: %s".format(e))
     
     /*** Helpers for Call ***/
@@ -262,12 +266,18 @@ object HW5 extends js.util.JsApp {
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
         for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
-//        Mem.alloc(e).map { a => UnOp(Deref, a)}
         // what is "k" referring to?
          //Mem.alloc(k)
       case GetField(a @ Addr(_), f) => 
-        State.apply {(m: Mem) => m.get(a)}
-        ??? //State.insert()
+        for (m <- State[Mem]) yield {
+           m.get(a) match {
+             case Some(Obj(xs)) => xs.get(f) match {
+               case Some(v) => v
+               case _ => throw new StuckError(e)
+             }
+             case _ => throw new StuckError(e)
+           }
+        }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
         /*** Fill-in the DoCall and DoCallRec cases */
@@ -291,12 +301,21 @@ object HW5 extends js.util.JsApp {
         //State.modify( ... substitute(e2, x, v1)
         
       // DoAssignVar
+      case BinOp(Assign, a @ Addr(_), v) if isValue(v) => {
+        for (m <- State[Mem]) yield {
+          println("got " + a)
+          m + (a, v); v
+        }
+      }
+        
+      // DoVarDecl
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
-//        val mp = Mem.alloc(v1)
-//        mp.flatMap { a => ??? }
-////        substitute(e2, x, UnOp(Deref, a))
-
-        Mem.alloc(v1).map { a => UnOp(Deref, a) }
+        Mem.alloc(v1).map {
+          a => {
+            println("got " + a)
+            substitute(e2, x, UnOp(Deref, a))
+          }
+        }
         
       //DoAssignField?
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
@@ -305,9 +324,14 @@ object HW5 extends js.util.JsApp {
       /*** Fill-in more Do cases here. ***/
         
       //DoDeref
-      case UnOp(Deref, a @ Addr(_)) => 
-//        State.apply {(m:Mem) => if(m.contains(a)) { m.get(a)} }
-        ???
+      case UnOp(Deref, a @ Addr(_)) => {
+        for (m <- State[Mem]) yield {
+          m.get(a) match {
+            case Some(v) => v
+            case None => throw StuckError(e)
+          }
+        }
+      }
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
@@ -437,7 +461,7 @@ object HW5 extends js.util.JsApp {
     }
       
     handle(fail()) {
-      val t = inferType(expr)
+      // val t = inferType(expr)
     }
     
     handle() {
