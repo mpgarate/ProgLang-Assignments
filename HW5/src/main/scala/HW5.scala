@@ -123,7 +123,7 @@ object HW5 extends js.util.JsApp {
         case TObj(tfs) if (tfs.contains(f)) => tfs(f)
         case tgot => err(tgot, e1)
       } 
-      
+      /* not sure where TypeFun, TypeFunAnn, and TypeFunRec go- is it all in this case below? */
       case Function(p, xs, tann, e1) => {
         // Bind to env1 an environment that extends env with an appropriate binding if
         // the function is potentially recursive.
@@ -153,7 +153,16 @@ object HW5 extends js.util.JsApp {
       }
       
       /*** Fill-in more cases here. ***/
-        
+      
+      //TypeDecl
+      case Decl(mut, y, ed, eb) =>  ???
+      //TypeAssignVar
+      case BinOp(Assign, Var(x), e2) => ???
+      //TypeAssignField
+      case BinOp(Assign, UnOp(Deref,a), e2) => ???
+      
+      
+      
       /* Should not match: non-source expressions */
       case Addr(_) | UnOp(Deref, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
     }
@@ -341,14 +350,16 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
-      case Call(Function(p, (m, _, _) :: xs, tann, e), arg :: e2) =>
-        (m, arg) match {
-          //SearchCallVarConst
-          case ((PConst | PVar), arg) => ???
-          case (PName, arg) => ???
-          //SearchCallPRef
-          case (PRef, arg) if (isLValue(arg)) => ???
-        } 
+      case Call(func @ Function(_, (m, _, _) :: xs, tann, e), e2) =>
+        
+//        (m, arg) match {
+//          //SearchCallVarConst
+//          case ((PConst | PVar), arg) => ???
+//          case (PName, arg) => ???
+//          //SearchCallRef
+//          case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => 
+//             Call(func, e2.map { x => if (x == arg) step(arg) })
+//        } 
         
       // ^^I think thats all the search rules
       
