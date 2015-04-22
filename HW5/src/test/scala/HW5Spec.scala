@@ -34,10 +34,18 @@ class HW5Spec extends FlatSpec {
     //I think that's written right...
     val exp4 = BinOp(Plus, Var("y"), Var("x"))
     val exp3 = BinOp(Assign, Var("x"), Num(3))
-    val exp2 = Decl(MVar, "y", Num(2), BinOp(Seq, BinOp(Assign,Var("y"), exp3), exp4))
-    val exp1 = Decl(MVar, "x", Num(2), exp2)
+    val exp2 = BinOp(Seq, BinOp(Assign,Var("y"), exp3), exp4) 
+    val exp1 = Decl(MVar, "y", Num(2), exp2)
+    val exp = Decl(MVar, "x", Num(2), exp1)
     
-    assert(Num(6) == iterateStep(exp1))
+    /**
+     * var x = 2
+     * var y = 2
+     * y = x = 3
+     * y + x
+     */
+    
+    assert(Num(6) == iterateStep(exp))
   }
   
   "MConst" should "not allow for mutations" in {
