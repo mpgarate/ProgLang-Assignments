@@ -165,7 +165,15 @@ object HW5 extends js.util.JsApp {
       } 
         
       //TypeAssignVar
-      case BinOp(Assign, Var(x), e2) => ???
+      case BinOp(Assign, Var(x), e2) => {
+        env.get(x) match {
+          case Some(re) => re match {
+            case (MVar, ta) => val tp = typ(e2); if (tp == ta)tp else err(tp, e2)
+            case (MConst, ta) => err(ta, BinOp(Assign, Var(x), e2))
+          }
+          case None => err(TUndefined, BinOp(Assign, Var(x), e2))
+        } 
+      }
       //TypeAssignField
       case BinOp(Assign, UnOp(Deref,a), e2) => ???
       
