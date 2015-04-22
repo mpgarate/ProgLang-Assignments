@@ -184,7 +184,6 @@ object HW5 extends js.util.JsApp {
   
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
-    println("in substitute")
     def subst(e: Expr): Expr = substitute(e, x, esub)
     val ep: Expr = e
     ep match {
@@ -259,15 +258,10 @@ object HW5 extends js.util.JsApp {
         for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
         // what is "k" referring to?
          //Mem.alloc(k)
-      case GetField(a @ Addr(_), f) => 
-        for (m <- State[Mem]) yield {
-           m.get(a) match {
-             case Some(Obj(xs)) => xs.get(f) match {
-               case Some(v) => v
-               case _ => throw new StuckError(e)
-             }
-             case _ => throw new StuckError(e)
-           }
+      case GetField(Obj(xs), f) => 
+        xs.get(f) match {
+          case Some(v) => State.insert(v)
+          case None => throw new StuckError(e)
         }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
@@ -318,7 +312,7 @@ object HW5 extends js.util.JsApp {
       case UnOp(Deref, a @ Addr(_)) => {
         for (m <- State[Mem]) yield {
           m.get(a) match {
-            case Some(v) => v
+            case Some(v) => println("DoDeref returning " + v); v
             case None => throw StuckError(e)
           }
         }
