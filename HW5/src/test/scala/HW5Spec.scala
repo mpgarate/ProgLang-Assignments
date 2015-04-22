@@ -33,8 +33,8 @@ class HW5Spec extends FlatSpec {
   "MVar" should "allow for nested assignments" in {
     //I think that's written right...
     val exp4 = BinOp(Plus, Var("y"), Var("x"))
-    val exp3 = BinOp(Assign, Var("x"),Num(3))
-    val exp2 = Decl(MVar, "y", Num(2), BinOp(Seq, BinOp(Assign,Var("y"),exp3), exp4))
+    val exp3 = BinOp(Assign, Var("x"), Num(3))
+    val exp2 = Decl(MVar, "y", Num(2), BinOp(Seq, BinOp(Assign,Var("y"), exp3), exp4))
     val exp1 = Decl(MVar, "x", Num(2), exp2)
     
     assert(Num(6) == iterateStep(exp1))
@@ -52,7 +52,7 @@ class HW5Spec extends FlatSpec {
 //    fill in what the error would be...
   }
   
-   "functions" should "have multiple parameters" in {
+  "functions" should "have multiple parameters" in {
     val fnExpr = BinOp(Times, Var("n1"), Var("n2"))
     val fn = Function(Some("times"), List((PConst, "n1", TNumber), (PConst,"n2", TNumber)), None, fnExpr)
     
@@ -62,6 +62,7 @@ class HW5Spec extends FlatSpec {
     assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
+  
   "PRef" should "pass by reference" in {
     val fnExpr = BinOp(Assign, Var("b1"), Bool(false)) //is this right?
     val fn = Function(Some("times"), List((PRef, "b1", TBool)), None, fnExpr)
@@ -73,10 +74,9 @@ class HW5Spec extends FlatSpec {
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
   
-  
   "Assign Obj" should "change the value of the object field" in {
-   val exp = Decl ( MVar, "x", Obj (Map ("f" -> Num (7.0))), BinOp (Assign, GetField (Var ("x"), "f"), Num (10.0)))
-   assert(Num(10) == iterateStep(exp))
+    val exp = Decl(MVar, "x", Obj(Map("f" -> Num (7.0))), BinOp (Assign, GetField (Var ("x"), "f"), Num (10.0)))
+    assert(Num(10) == iterateStep(exp))
   }
   
   "DoCall" should "evaluate a function without parameters" in {
