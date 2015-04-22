@@ -185,7 +185,7 @@ object HW5 extends js.util.JsApp {
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
     def subst(e: Expr): Expr = substitute(e, x, esub)
-    val ep: Expr = ???
+    val ep: Expr = e
     ep match {
       case Num(_) | Bool(_) | Undefined | Str(_) | Addr(_) => e
       case Print(e1) => Print(subst(e1))
@@ -195,7 +195,8 @@ object HW5 extends js.util.JsApp {
       case Var(y) => if (x == y) esub else e
       case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e) =>
-        ???
+        // we probably also want to subst within each expr in xs
+        Function(p, xs, tann, subst(e))
       case Call(e1, args) => Call(subst(e1), args map subst)
       case Obj(fs) => Obj(fs mapValues (subst(_)))
       case GetField(e, f) => GetField(subst(e), f)
@@ -297,12 +298,14 @@ object HW5 extends js.util.JsApp {
         
       //DoDeref
       case UnOp(Deref, a @ Addr(_)) => 
-        for {
-          m <- State[Mem]
+        for (m <- State[Mem]) yield {
+          m.get(a) match {
+            case Some(v) => v
+            case None => throw StuckError(e)
+          }
+        }
           // TODO: check data (an option type) and throw a nice exception if 
           // it is None. 
-          val data = m.get(a)
-        } yield data.get
         
         
           
@@ -433,7 +436,7 @@ object HW5 extends js.util.JsApp {
     }
       
     handle(fail()) {
-      val t = inferType(expr)
+      // val t = inferType(expr)
     }
     
     handle() {
