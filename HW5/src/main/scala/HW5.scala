@@ -136,7 +136,7 @@ object HW5 extends js.util.JsApp {
         }
         // Bind to env2 an environment that extends env1 with the parameters.
         val env2 = 
-          xs.map(tup => tup match {
+          xs.map(tup => tup match { //not sure what to use. maybe use flatmap? somehow need to add env1 as well
             case ((PConst | PName), s, t) => (s -> (MConst, t))
             case (_, s, t) => (s -> (MVar, t))
           })
