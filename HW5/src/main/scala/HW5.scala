@@ -286,7 +286,7 @@ object HW5 extends js.util.JsApp {
         //State.modify( ... substitute(e2, x, v1)
         
       // DoAssignVar
-      case BinOp(Assign, a @ Addr(_), v) if isValue(v) => {
+      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) => {
         for (m <- State[Mem]) yield {
           println("got " + a)
           m + (a, v); v
@@ -303,8 +303,13 @@ object HW5 extends js.util.JsApp {
         }
         
       //DoAssignField?
-      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
-        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
+//      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
+//        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
+        
+      case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
+        println("---- got here ----")
+        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v
+        
         
       /*** Fill-in more Do cases here. ***/
         
