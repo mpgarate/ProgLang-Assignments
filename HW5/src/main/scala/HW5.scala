@@ -123,7 +123,7 @@ object HW5 extends js.util.JsApp {
         case TObj(tfs) if (tfs.contains(f)) => tfs(f)
         case tgot => err(tgot, e1)
       } 
-      
+      /* not sure where TypeFun, TypeFunAnn, and TypeFunRec go- is it all in this case below? */
       case Function(p, xs, tann, e1) => {
         // Bind to env1 an environment that extends env with an appropriate binding if
         // the function is potentially recursive.
@@ -136,6 +136,10 @@ object HW5 extends js.util.JsApp {
         }
         // Bind to env2 an environment that extends env1 with the parameters.
         val env2 = ???
+//          xs.map(tup => tup match { //not sure what to use. maybe use flatmap? somehow need to add env1 as well
+//            case ((PConst | PName), s, t) => (s -> (MConst, t))
+//            case (_, s, t) => (s -> (MVar, t))
+//          })
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
         tann foreach { rt => if (rt != t1) err(t1, e1) };
@@ -153,7 +157,34 @@ object HW5 extends js.util.JsApp {
       }
       
       /*** Fill-in more cases here. ***/
+      
+      //TypeDecl
+      case Decl(mut, x, ed, eb) =>{
+        val env2 = env + (x -> (mut, typ(ed)))
+        typeInfer(env2, eb)
+      } 
         
+      //TypeAssignVar
+      case BinOp(Assign, Var(x), e2) => {
+        env.get(x) match {
+          case Some(re) => re match {
+            case (MVar, ta) => val tp = typ(e2); if (tp == ta)tp else err(tp, e2)
+            case (MConst, ta) => err(ta, BinOp(Assign, Var(x), e2))
+          }
+          case None => err(TUndefined, BinOp(Assign, Var(x), e2))
+        } 
+      }
+      //TypeAssignField
+      case BinOp(Assign, GetField(obj, f), e2) => typ(obj) match {
+        case TObj(tfs) if (tfs.contains(f)) => {
+          val te2 = typ(e2);
+          if (te2 == tfs(f)) te2 else err(te2, e2)
+        }
+        case tgot => err(tgot, GetField(obj, f))
+      }
+      
+      
+      
       /* Should not match: non-source expressions */
       case Addr(_) | UnOp(Deref, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
     }
@@ -364,14 +395,16 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
-      case Call(Function(p, (m, _, _) :: xs, tann, e), arg :: e2) =>
-        (m, arg) match {
-          //SearchCallVarConst
-          case ((PConst | PVar), arg) => ???
-          case (PName, arg) => ???
-          //SearchCallPRef
-          case (PRef, arg) if (isLValue(arg)) => ???
-        } 
+      case Call(func @ Function(_, (m, _, _) :: xs, tann, e), e2) =>
+        ???
+//        (m, arg) match {
+//          //SearchCallVarConst
+//          case ((PConst | PVar), arg) => ???
+//          case (PName, arg) => ???
+//          //SearchCallRef
+//          case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => 
+//             Call(func, e2.map { x => if (x == arg) step(arg) })
+//        } 
         
       // ^^I think thats all the search rules
       
