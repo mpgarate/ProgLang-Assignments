@@ -159,7 +159,11 @@ object HW5 extends js.util.JsApp {
       /*** Fill-in more cases here. ***/
       
       //TypeDecl
-      case Decl(mut, y, ed, eb) =>  ???
+      case Decl(mut, x, ed, eb) =>{
+        val env2 = env + (x -> (mut, typ(ed)))
+        typeInfer(env2, eb)
+      } 
+        
       //TypeAssignVar
       case BinOp(Assign, Var(x), e2) => ???
       //TypeAssignField
