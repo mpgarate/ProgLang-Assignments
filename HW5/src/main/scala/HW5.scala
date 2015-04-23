@@ -298,20 +298,30 @@ object HW5 extends js.util.JsApp {
         }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
+        println("do function call")
         /*** Fill-in the DoCall and DoCallRec cases */
         val ep = p match {
           case None => e
           case Some(x) => substitute(e, x, v)
         }
-        
         State.insert(ep)
 
+        
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-          case (PConst, arg) if isValue(arg) => {
-            println("calling subst on " + p)
-            State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
+          case (PConst, arg) => {
+
+            // Thought on a more functional style:
+            //
+            // State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
+            //
+            // But, when there are only 2 args left, the Call signature does not match this case
+            // and the final step is not performed. 
+
+            var expr = substitute(e, x, arg)
+            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
+            State.insert(expr)
           }
           case (PName, arg) => ???
           case (PRef, arg) => ???
@@ -396,6 +406,9 @@ object HW5 extends js.util.JsApp {
       
       //SearchCallFun
       case Call(e1, e2) =>
+        println("searching call...")
+        println(e1)
+        println(e2)
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         

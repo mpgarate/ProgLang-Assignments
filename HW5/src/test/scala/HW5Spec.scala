@@ -66,11 +66,23 @@ class HW5Spec extends FlatSpec {
     
     
     assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
-
-    val obj = Obj(Map("a" -> Bool(true)))
-    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
-
-    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)))))))
+  }
+  
+  "functions" should "evaluate expressions in passed parameters" in {
+//    val fnExpr = BinOp(Times, Var("n1"), Var("n2"))
+//    val fn = Function(Some("times"), List((PConst, "n1", TNumber), (PConst,"n2", TNumber)), None, fnExpr)
+//    val obj = Obj(Map("a" -> Bool(true)))
+//    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
+//
+//    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)))))))
+    
+    
+    val fnExpr = BinOp(Plus, Var("n1"), Var("n2"))
+    val paramList = List((PConst, "n1", TNumber), (PConst, "n2", TNumber))
+    val fn = Function(Some("plus"), paramList, None, fnExpr)
+    val callFn = Call(fn, List(Num(3), If(BinOp(Gt, Num(10), Num(5)), Num(4), Num(1))))
+    
+    assert(Num(7) == iterateStep(callFn))
   }
   
   "functions" should "have more than 3 parameters" in {
