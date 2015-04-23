@@ -15,6 +15,26 @@ class HW5Spec extends FlatSpec {
       case _: StaticTypeError => 
     }
     
+    //test reassigning variable to the wrong field
+    try{
+      typeInfer(Map.empty, Decl( MVar, "obj", Obj (Map ("n" -> Num (1.0))),BinOp (Assign, GetField (Var ("obj"), "n"), Str ("hello"))))
+      fail()
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
+    
+    //should throw error for redeclaring MConst object
+    try{
+      typeInfer(Map.empty, Decl (MConst, "o", Obj (Map ("f" -> Num (1.0))), BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0))))))
+      fail()
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
+    
+    
+    
   }
   
   "substitute" should "replace references in object properties" in {
@@ -28,6 +48,15 @@ class HW5Spec extends FlatSpec {
     val exp = Decl(MVar, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
     
     assert(Num(10) == iterateStep(exp))
+  }
+  
+  "MVar" should "allow for mutations of an object" in {
+    val exp = Decl (
+      MVar,
+      "o",
+      Obj (Map ("f" -> Num (1.0))),
+      BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0)))))
+    assert(Num(2) == iterateStep(exp))
   }
   
   "MVar" should "allow for nested assignments" in {
