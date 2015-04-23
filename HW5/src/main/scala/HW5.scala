@@ -359,9 +359,16 @@ object HW5 extends js.util.JsApp {
       }
         
       //DoAssignField
-      case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
+      case BinOp(Assign, GetField(a @ Addr(_), f), v) if isValue(v) => 
         println("DoAssignField")
-        for (_ <- State.modify { (m: Mem) => (m + (a,v)): Mem }) yield v
+        for (_ <- State.modify {
+          (m: Mem) => {
+            m.get(a) match {
+              case Some(Obj(xs)) => m + ((a, Obj(xs + ((f, v))))): Mem
+              case _ => throw StuckError(e)
+            }
+          }
+          }) yield v
         
         
       /*** Fill-in more Do cases here. ***/
