@@ -350,8 +350,6 @@ object HW5 extends js.util.JsApp {
           }
         }
         
-        // BinOp(Seq, BinOp (Assign, GetField(Var ("x"), "f"), Num (10.0)), GetField(Var("x"), "f"))
-        
       //DoAssignField
       case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
         println("DoAssignField")
