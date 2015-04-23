@@ -302,15 +302,15 @@ object HW5 extends js.util.JsApp {
           case None => e
           case Some(x) => substitute(e, x, v)
         }
-        ???
+        
+        State.insert(ep)
+
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-          case (PConst, arg) => {
-            // TODO: rewrite this in a more functional style
-            var expr = substitute(e, x, arg)
-            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
-            State.insert(expr)
+          case (PConst, arg) if isValue(arg) => {
+            println("calling subst on " + p)
+            State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
           }
           case (PName, arg) => ???
           case (PRef, arg) => ???
@@ -325,7 +325,6 @@ object HW5 extends js.util.JsApp {
       // DoAssignVar
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) => {
         for (m <- State[Mem]) yield {
-          println("got " + a)
           m + (a, v); v
         }
       }
@@ -334,7 +333,6 @@ object HW5 extends js.util.JsApp {
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
         Mem.alloc(v1).map {
           a => {
-            println("got " + a)
             substitute(e2, x, UnOp(Deref, a))
           }
         }
@@ -344,7 +342,6 @@ object HW5 extends js.util.JsApp {
 //        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
         
       case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
-        println("---- got here ----")
         for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v
         
         
@@ -354,7 +351,6 @@ object HW5 extends js.util.JsApp {
       case UnOp(Deref, a @ Addr(_)) => {
         for (m <- State[Mem]) yield {
           m.get(a) match {
-            case Some(v) => println("DoDeref returning " + v); v
             case None => throw StuckError(e)
           }
         }
@@ -365,6 +361,11 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Print(e1p)
       case UnOp(uop, e1) =>
         for (e1p <- step(e1)) yield UnOp(uop, e1p)
+        
+      //SearchAssign 1 
+      case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
+        for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
+        
       case BinOp(bop, v1, e2) if isValue(v1) =>
         for (e2p <- step(e2)) yield BinOp(bop, v1, e2p)
       case BinOp(bop, e1, e2) =>
@@ -391,26 +392,20 @@ object HW5 extends js.util.JsApp {
       case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
         for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p)
       
-      //SearchAssign 1 
-      case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
-        for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
-        
-
       //SearchCallFun
       case Call(e1, e2) =>
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
-      case Call(func @ Function(_, (m, _, _) :: xs, tann, e), e2) =>
-        ???
-//        (m, arg) match {
-//          //SearchCallVarConst
-//          case ((PConst | PVar), arg) => ???
-//          case (PName, arg) => ???
-//          //SearchCallRef
-//          case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => 
+      case Call(func @ Function(_, (m, _, _) :: xs, tann, e), arg :: e2) =>
+        (m, arg) match {
+          //SearchCallVarConst
+          case ((PConst | PVar), arg) => ???
+          case (PName, arg) => ???
+          //SearchCallRef
+          case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => ???
 //             Call(func, e2.map { x => if (x == arg) step(arg) })
-//        } 
+        } 
         
       // ^^I think thats all the search rules
       

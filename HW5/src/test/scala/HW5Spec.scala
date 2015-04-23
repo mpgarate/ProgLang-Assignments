@@ -64,10 +64,12 @@ class HW5Spec extends FlatSpec {
     val fnExpr = BinOp(Times, Var("n1"), Var("n2"))
     val fn = Function(Some("times"), List((PConst, "n1", TNumber), (PConst,"n2", TNumber)), None, fnExpr)
     
-    val obj = Obj(Map("a" -> Bool(true)))
-    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
     
     assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
+
+    val obj = Obj(Map("a" -> Bool(true)))
+    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
+
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
   
