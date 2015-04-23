@@ -47,7 +47,9 @@ class HW5Spec extends FlatSpec {
   }
   
   "MVar" should "allow for mutations of a value" in {
-    val exp = Decl(MVar, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
+    val getVar = Var("n")
+    val reAssign = BinOp(Assign,Var("n"), Num(10))
+    val exp = Decl(MVar, "n", Num(3), BinOp(Seq, reAssign, getVar))
     
     assert(Num(10) == iterateStep(exp))
   }

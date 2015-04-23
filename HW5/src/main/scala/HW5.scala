@@ -335,6 +335,9 @@ object HW5 extends js.util.JsApp {
         
       // DoAssignVar
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) => {
+        println("DoAssignVar")
+        println("addr: " + a)
+        println("v: " + v)
         for (m <- State[Mem]) yield {
           m + (a, v); v
         }
@@ -375,13 +378,16 @@ object HW5 extends js.util.JsApp {
       case UnOp(uop, e1) =>
         for (e1p <- step(e1)) yield UnOp(uop, e1p)
        
-      //SearchAssign 2 
-      case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
-        for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p) 
-        
       //SearchAssign 1 
       case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
+        println("searchassign 1")
         for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
+
+      //SearchAssign 2 
+      case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
+        println("searchassign 2")
+        for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p) 
+        
         
       case BinOp(bop, v1, e2) if isValue(v1) =>
         for (e2p <- step(e2)) yield BinOp(bop, v1, e2p)
