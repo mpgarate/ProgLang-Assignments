@@ -26,7 +26,8 @@ class HW5Spec extends FlatSpec {
     
     //should throw error for redeclaring MConst object
     try{
-      typeInfer(Map.empty, Decl (MConst, "o", Obj (Map ("f" -> Num (1.0))), BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0))))))
+      typeInfer(Map.empty, Decl (MConst, "o", Obj (Map ("f" -> Num (1.0)
+          )), BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0))))))
       fail()
     }
     catch {
@@ -36,6 +37,7 @@ class HW5Spec extends FlatSpec {
     
     
   }
+  
   
   "substitute" should "replace references in object properties" in {
     val obj = Obj(Map("a" -> BinOp(Times,Var("x"),Num(20))))
@@ -257,5 +259,12 @@ class HW5Spec extends FlatSpec {
         BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
       Decl (MConst, "y", Num (3.0), Call (Var ("f"), List (Var ("y")))))
     //not sure what error should be called
+  }
+  
+  "object fields" should " allow nested objects" in {
+      val obj2 = Obj(Map ("n" -> Num(1.0)))
+      val exp = Decl (MConst, "o", Obj (Map ("f" -> obj2)), BinOp(Plus, GetField( GetField(Var("o"), "f"), "n" ), Num(2) ))
+      assert(Num(3) == iterateStep(exp))
+
   }
 }
