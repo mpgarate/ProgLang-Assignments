@@ -70,7 +70,7 @@ class HW5Spec extends FlatSpec {
     val obj = Obj(Map("a" -> Bool(true)))
     val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
 
-    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
+    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)))))))
   }
   
   "functions" should "have more than 3 parameters" in {
@@ -92,9 +92,15 @@ class HW5Spec extends FlatSpec {
     assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
   }
   
-  "Assign Obj" should "change the value of the object field" in {
-    val exp = Decl(MVar, "x", Obj(Map("f" -> Num (7.0))), BinOp (Assign, GetField (Var ("x"), "f"), Num (10.0)))
-    assert(Num(10) == iterateStep(exp))
+//  "Assign Obj" should "change the value of the object field" in {
+//    val seq = BinOp(Seq, BinOp (Assign, GetField(Var ("x"), "f"), Num (10.0)), GetField(Var("x"), "f"))
+//    val exp = Decl(MVar, "x", Obj(Map("f" -> Num (7.0))), seq)
+//    assert(Num(10) == iterateStep(exp))
+//  }
+  
+  "Simple Assign Obj" should "change the value of the object field" in {
+    val exp2 = BinOp(Assign, GetField(Var("o"), "f"), GetField(Var("o"), "f"))
+    val exp1 = Decl(MConst, "o", Obj(Map("f" -> Num(7.0))), exp2)
   }
   
   "DoCall" should "evaluate a function without parameters" in {

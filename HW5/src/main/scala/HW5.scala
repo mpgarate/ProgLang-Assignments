@@ -227,7 +227,8 @@ object HW5 extends js.util.JsApp {
       case Var(y) => if (x == y) esub else e
       case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e) =>
-        // we probably also want to subst within each expr in xs
+        // we might want to subst within each expr in xs
+        println("----substing function")
         Function(p, xs, tann, subst(e))
       case Call(e1, args) => Call(subst(e1), args map subst)
       case Obj(fs) => Obj(fs mapValues (subst(_)))
@@ -337,20 +338,22 @@ object HW5 extends js.util.JsApp {
           }
         }
         
-      //DoAssignField?
-//      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
-//        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v //can't test this yet until Decl is working...
+        // BinOp(Seq, BinOp (Assign, GetField(Var ("x"), "f"), Num (10.0)), GetField(Var("x"), "f"))
         
+      //DoAssignField
       case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
-        for (_ <- State.modify { (m: Mem) => (m.+(a,v)): Mem }) yield v
+        println("DoAssignField")
+        for (_ <- State.modify { (m: Mem) => (m + (a,v)): Mem }) yield v
         
         
       /*** Fill-in more Do cases here. ***/
+
         
       //DoDeref
       case UnOp(Deref, a @ Addr(_)) => {
         for (m <- State[Mem]) yield {
           m.get(a) match {
+            case Some(e) => e
             case None => throw StuckError(e)
           }
         }
@@ -361,6 +364,10 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Print(e1p)
       case UnOp(uop, e1) =>
         for (e1p <- step(e1)) yield UnOp(uop, e1p)
+       
+      //SearchAssign 2 
+      case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
+        for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p) 
         
       //SearchAssign 1 
       case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
@@ -374,23 +381,18 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield If(e1p, e2, e3)
       case Obj(fs) => fs find { case (_, ei) => !isValue(ei) } match {
         case Some((fi,ei)) =>
-          //for (e1p <- step(ei)) yield Obj(Map(fi -> e1p))
           for (e1p <- step(ei)) yield Obj(fs.updated(fi, e1p))
-
         case None => throw StuckError(e)
       }
       case GetField(e1, f) => for (e1p <- step(e1)) yield GetField(e1p, f)
       
       /*** Fill-in more Search cases here. ***/
       
-      //SearchConst
+      //SearchDecl
       case Decl(m, x, e1, e2) => {
+        println("search decl...")
         for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
-      
-      //SearchAssign 2 
-      case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
-        for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p)
       
       //SearchCallFun
       case Call(e1, e2) =>
