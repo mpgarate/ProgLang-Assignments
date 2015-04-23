@@ -55,16 +55,19 @@ class HW5Spec extends FlatSpec {
   }
   
   "MVar" should "allow for mutations of an object" in {
+    val getField = GetField(Var("o"), "n")
+    val seq = BinOp(Seq, BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0)))), getField)
     val exp = Decl (
       MVar,
       "o",
       Obj (Map ("f" -> Num (1.0))),
-      BinOp (Assign, Var ("o"), Obj (Map ("n" -> Num (2.0)))))
+      seq
+    )
+
     assert(Num(2) == iterateStep(exp))
   }
   
   "MVar" should "allow for nested assignments" in {
-    //I think that's written right...
     val exp4 = BinOp(Plus, Var("y"), Var("x"))
     val exp3 = BinOp(Assign, Var("x"), Num(3))
     val exp2 = BinOp(Seq, BinOp(Assign,Var("y"), exp3), exp4) 
@@ -81,6 +84,14 @@ class HW5Spec extends FlatSpec {
     assert(Num(6) == iterateStep(exp))
   }
   
+  /**
+   * For this, could it be a type checking thing? Otherwise, since we substitute, we
+   * get something like this:
+   * 
+   * 3 = 10
+   * 
+   * Which does not match any searchAssign rules, so we search with step(3) and fail
+   */
   "MConst" should "not allow for mutations" in {
     try{
       val exp = Decl(MConst, "n", Num(3), BinOp(Assign,Var("n"), Num(10)))
