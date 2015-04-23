@@ -174,8 +174,9 @@ object HW5 extends js.util.JsApp {
           case None => err(TUndefined, BinOp(Assign, Var(x), e2))
         } 
       }
+      
       //TypeAssignField
-      case BinOp(Assign, GetField(obj, f), e2) => typ(obj) match {
+      case BinOp(Assign, GetField(obj, f), e2) => println("in TypeAssignField"); typ(obj) match {
         case TObj(tfs) if (tfs.contains(f)) => {
           val te2 = typ(e2);
           if (te2 == tfs(f)) te2 else err(te2, e2)
@@ -343,11 +344,6 @@ object HW5 extends js.util.JsApp {
         State.insert(substitute(e2, x, v1)) //not tested yet
         //State.modify( ... substitute(e2, x, v1)
         
-      // DoAssignVar
-      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) => { //}if isValue(v) => {
-        for (_ <- State.modify { (m: Mem) => (m + (a,v)): Mem }) yield v
-      }
-        
       // DoVarDecl
       case Decl(MVar, x, v1, e2) if (isValue(v1)) =>
         println("DoVarDecl")
@@ -356,6 +352,11 @@ object HW5 extends js.util.JsApp {
             substitute(e2, x, UnOp(Deref, a))
           }
         }
+        
+      // DoAssignVar
+      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) => {
+        for (_ <- State.modify { (m: Mem) => (m + (a,v)): Mem }) yield v
+      }
         
       //DoAssignField
       case BinOp(Assign, GetField(UnOp(Deref, a @ Addr(_)), f), v) if isValue(v) => 
