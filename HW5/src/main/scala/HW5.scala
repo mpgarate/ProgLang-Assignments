@@ -338,9 +338,8 @@ object HW5 extends js.util.JsApp {
         println("DoAssignVar")
         println("addr: " + a)
         println("v: " + v)
-        for (m <- State[Mem]) yield {
-          m + (a, v); v
-        }
+        
+        for (_ <- State.modify { (m: Mem) => (m + (a, v)) :Mem}) yield v
       }
         
       // DoVarDecl
