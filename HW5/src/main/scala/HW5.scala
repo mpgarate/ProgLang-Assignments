@@ -288,13 +288,23 @@ object HW5 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
-        for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
-        // what is "k" referring to?
-         //Mem.alloc(k)
-      case GetField(Obj(xs), f) => 
-        xs.get(f) match {
-          case Some(v) => State.insert(v)
-          case None => throw new StuckError(e)
+        //for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
+        Mem.alloc(e)
+        
+      case GetField(a @ Addr(_), f) => 
+        println("in GetField(Obj)")
+        println("getting: " + f)
+        
+        for (m <- State[Mem]) yield {
+          m.get(a) match {
+            case (Some(Obj(xs))) => {
+              xs.get(f) match {
+                case Some(v) => v
+                case _ => println(xs); throw StuckError(e)
+              }
+            }
+            case _ => throw StuckError(e)
+          }
         }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
@@ -334,16 +344,13 @@ object HW5 extends js.util.JsApp {
         //State.modify( ... substitute(e2, x, v1)
         
       // DoAssignVar
-      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) => {
-        println("DoAssignVar")
-        println("addr: " + a)
-        println("v: " + v)
-        
-        for (_ <- State.modify { (m: Mem) => (m + (a, v)) :Mem}) yield v
+      case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) => { //}if isValue(v) => {
+        for (_ <- State.modify { (m: Mem) => (m + (a,v)): Mem }) yield v
       }
         
       // DoVarDecl
-      case Decl(MVar, x, v1, e2) if isValue(v1) =>
+      case Decl(MVar, x, v1, e2) if (isValue(v1)) =>
+        println("DoVarDecl")
         Mem.alloc(v1).map {
           a => {
             substitute(e2, x, UnOp(Deref, a))

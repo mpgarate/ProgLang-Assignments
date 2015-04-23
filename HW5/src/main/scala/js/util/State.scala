@@ -6,7 +6,7 @@ package js.util
   * 
   * Aside: This is also known as the state monad.
   */
-sealed class State[S,R](run: S => (S,R)) {
+sealed class State[S,+R](run: S => (S,R)) {
   def apply(s: S) = run(s)
 
   def map[P](f: R => P): State[S,P] = 
