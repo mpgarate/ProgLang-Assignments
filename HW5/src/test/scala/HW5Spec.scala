@@ -160,8 +160,17 @@ class HW5Spec extends FlatSpec {
   }
   
   "Simple Assign Obj" should "change the value of the object field" in {
-    val exp2 = BinOp(Assign, GetField(Var("o"), "f"), GetField(Var("o"), "f"))
-    val exp1 = Decl(MConst, "o", Obj(Map("f" -> Num(7.0))), exp2)
+    val exp = 
+      Decl (
+        MConst,
+          "o",
+          Obj (Map ("f" -> Num (1.0))),
+          BinOp (
+            Seq,
+            BinOp (Assign, GetField (Var ("o"), "f"), Num (4.0)),
+            BinOp (Plus, GetField (Var ("o"), "f"), Num (2.0))))
+     assert(Num(6) == iterateStep(exp))
+        
   }
   
   "DoCall" should "evaluate a function without parameters" in {
