@@ -293,7 +293,6 @@ object HW5 extends js.util.JsApp {
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
-        //for (a <- Mem.alloc(e)) yield UnOp(Deref, a)
         Mem.alloc(e)
         
       case GetField(a @ Addr(_), f) => 
@@ -335,8 +334,7 @@ object HW5 extends js.util.JsApp {
         } 
       
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
-        State.insert(substitute(e2, x, v1)) //not tested yet
-        //State.modify( ... substitute(e2, x, v1)
+        State.insert(substitute(e2, x, v1))
         
       // DoVarDecl
       case Decl(MVar, x, v1, e2) if (isValue(v1)) =>
@@ -390,7 +388,6 @@ object HW5 extends js.util.JsApp {
       case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
         for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p) 
         
-        
       case BinOp(bop, v1, e2) if isValue(v1) =>
         for (e2p <- step(e2)) yield BinOp(bop, v1, e2p)
       case BinOp(bop, e1, e2) =>
@@ -411,8 +408,6 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
-
-      
       // SearchCallRef + SearchCallVarConst
       case Call(func @ Function(_, (m, _, _) :: xs, tann, e), arg :: e2) =>
         (m, arg) match {
@@ -425,16 +420,12 @@ object HW5 extends js.util.JsApp {
             for (argp <- step(arg)) yield {
               Call(func, List(argp))
             }
-//            Call(func, e2.map { x => if (x == arg) step(arg) })
         } 
       
       //SearchCallFun
       case Call(e1, e2) =>
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
-        
-        
-      // ^^I think thats all the search rules
       
       /* Everything else is a stuck error. */
       case _ => throw StuckError(e)
