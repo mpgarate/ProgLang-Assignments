@@ -148,10 +148,16 @@ object HW5 extends js.util.JsApp {
       
       case Call(e1, args) => typ(e1) match {
         case TFunction(xs, tret) if (xs.length == args.length) => {
-          (xs, args).zipped.foreach {
-            (x, a) => 
-            println("x: " + x + "\na: " + a)
-            ???
+          (xs, args).zipped.foreach { 
+            (param, ei) => param match {
+              case (p, xi , ta) => {
+                if ((p != PRef) || (isLExpr(ei))) {
+                  val ti = typ(ei);
+                  if(ti == ta) ta else err(ti, ei)
+                }
+                else err( ta ,ei);
+              }
+            }  
           }
           tret
         }
