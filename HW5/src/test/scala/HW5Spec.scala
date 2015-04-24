@@ -195,24 +195,20 @@ class HW5Spec extends FlatSpec {
   }
   
   "DoRecCall" should "allow user to call recursive functions" in {
-     val exp = Decl (
-      MConst ,
-      "func",
+     val exp = Call (
       Function (
         Some ("sum"),
-        List (Tuple3 (PConst , "n", TNumber )),
-        Some (TNumber ),
+        List (Tuple3 (PConst, "n", TNumber)),
+        Some (TNumber),
         If (
           BinOp (Gt, Var ("n"), Num (0.0)),
-          BinOp (
-            Plus,
-            Call (
-              Var ("sum"),
-              List (BinOp (Minus, Var ("n"), Num (1.0)))),
-            Var ("n")),
+          Call (
+            Var ("sum"),
+            List (BinOp (Minus, Var ("n"), Num (1.0)))),
           Num (0.0))),
-      Call (Var ("func"), List (Num (5.0))))
-    assert(Num(15) == iterateStep(exp))
+      List (Num (5.0)))
+      
+      assert(Num(0) == iterateStep(exp))
     
     /**
      * const func = function sum(const n: number): => number {
@@ -350,5 +346,22 @@ class HW5Spec extends FlatSpec {
           List (BinOp (Lt, Var ("x"), Num (3.0))))))
      
     assert(Bool(false) == iterateStep(exp))
+  }
+  
+  "Function" should "do simple recursion with parameter" in {
+    var exp = Decl (
+      MConst,
+      "f",
+      Function (
+        Some ("func"),
+        List (Tuple3 (PConst, "b", TBool)),
+        Some (TBool),
+        If (
+          Var ("b"),
+          Bool (true),
+          Call (Var ("func"), List (Bool (true))))),
+      Call (Var ("f"), List (Bool (false))))
+      
+      assert(Bool(true) == iterateStep(exp))
   }
 }

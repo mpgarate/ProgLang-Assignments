@@ -224,7 +224,6 @@ object HW5 extends js.util.JsApp {
   
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
-    println("substitute " + x + " for " + esub + " in the expression " + e)
     def subst(e: Expr): Expr = substitute(e, x, esub)
     val ep: Expr = e
     ep match {
@@ -235,10 +234,9 @@ object HW5 extends js.util.JsApp {
       case If(e1, e2, e3) => If(subst(e1), subst(e2), subst(e3))
       case Var(y) => if (x == y) esub else e
       case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
-      case Function(p, xs, tann, e) =>
-        // we might want to subst within each expr in xs
-        println("----substing function")
-        Function(p, xs, tann, subst(e))
+      case Function(p, xs, tann, e1) =>
+        if (p == Some(x) || (xs exists (_._2 == x))) e
+        else Function(p, xs, tann, subst(e1))
       case Call(e1, args) => Call(subst(e1), args map subst)
       case Obj(fs) => Obj(fs mapValues (subst(_)))
       case GetField(e, f) => GetField(subst(e), f)
@@ -247,8 +245,6 @@ object HW5 extends js.util.JsApp {
 
   /* A small-step transition. */
   def step(e: Expr): State[Mem, Expr] = {
-    println("in step")
-    println(e)
     require(!isValue(e), "stepping on a value: %s".format(e))
     
     /*** Helpers for Call ***/
@@ -301,8 +297,6 @@ object HW5 extends js.util.JsApp {
         Mem.alloc(e)
         
       case GetField(a @ Addr(_), f) => 
-        println("in GetField(Obj)")
-        
         for (m <- State[Mem]) yield {
           m.get(a) match {
             case (Some(Obj(xs))) => {
@@ -317,17 +311,16 @@ object HW5 extends js.util.JsApp {
         
         // DoCall
       case Call(v @ Function(p, _, _, e), Nil) => 
-        println("DoCall")
         State.insert(e)
 
         // DoCallRec
       case Call(v @ Function(Some(x), xs, tan, e), args) => {
-        println("DoCallRec")
         val vp = Function(None, xs, tan, substitute(e, x, v))
+        
         State.insert(Call(vp, args))
       }
         
-      case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) => println("m: " + m + " arg: " + arg)
+      case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) => 
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
           case (PConst, arg) if isValue(arg) => 
@@ -347,7 +340,6 @@ object HW5 extends js.util.JsApp {
         
       // DoVarDecl
       case Decl(MVar, x, v1, e2) if (isValue(v1)) =>
-        println("DoVarDecl")
         Mem.alloc(v1).map {
           a => {
             substitute(e2, x, UnOp(Deref, a))
@@ -361,7 +353,6 @@ object HW5 extends js.util.JsApp {
         
       //DoAssignField
       case BinOp(Assign, GetField(a @ Addr(_), f), v) if isValue(v) => 
-        println("DoAssignField")
         for (_ <- State.modify {
           (m: Mem) => {
             m.get(a) match {
@@ -393,12 +384,10 @@ object HW5 extends js.util.JsApp {
        
       //SearchAssign 1 
       case BinOp(Assign, e1, e2) if (!isLValue(e1)) =>
-        println("searchassign 1")
         for (e1p <- step(e1)) yield BinOp(Assign, e1p, e2)
 
       //SearchAssign 2 
       case BinOp(Assign, v1 @ UnOp(Deref, Addr(_)), e2) => 
-        println("searchassign 2")
         for (e2p <- step(e2)) yield BinOp(Assign, v1, e2p) 
         
         
@@ -419,7 +408,6 @@ object HW5 extends js.util.JsApp {
       
       //SearchDecl
       case Decl(m, x, e1, e2) => {
-        println("search decl...")
         for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
@@ -427,7 +415,6 @@ object HW5 extends js.util.JsApp {
       
       // SearchCallRef + SearchCallVarConst
       case Call(func @ Function(_, (m, _, _) :: xs, tann, e), arg :: e2) =>
-        println("SearchCallRef + SearchCallVarConst")
         (m, arg) match {
           //SearchCallVarConst
           case ((PConst | PVar), arg) => for (argp <- step(arg)) yield {
@@ -443,7 +430,6 @@ object HW5 extends js.util.JsApp {
       
       //SearchCallFun
       case Call(e1, e2) =>
-        println("SearchCallFun")
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
