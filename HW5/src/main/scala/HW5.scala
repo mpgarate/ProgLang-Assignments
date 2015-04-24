@@ -294,14 +294,13 @@ object HW5 extends js.util.JsApp {
         
       case GetField(a @ Addr(_), f) => 
         println("in GetField(Obj)")
-        println("getting: " + f)
         
         for (m <- State[Mem]) yield {
           m.get(a) match {
             case (Some(Obj(xs))) => {
               xs.get(f) match {
                 case Some(v) => v
-                case _ => println(xs); throw StuckError(e)
+                case _ => throw StuckError(e)
               }
             }
             case _ => throw StuckError(e)
@@ -333,7 +332,9 @@ object HW5 extends js.util.JsApp {
 //            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
 //            State.insert(expr)
           }
-          case (PName, arg) => ???
+          case (PName, arg) => 
+            val v1 = Call(Function(p, xs, tann, substitute(e, x, arg)), args)
+            for (m <- State[Mem]) yield v1
           case (PRef, arg) => ???
           case (PVar, arg) => Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
           case _ => throw StuckError(e)
@@ -439,8 +440,6 @@ object HW5 extends js.util.JsApp {
       //SearchCallFun
       case Call(e1, e2) =>
         println("SearchCallFun")
-        println(e1)
-        println(e2)
         for (e1p <- step(e1)) yield Call(e1p, e2)
       
         
