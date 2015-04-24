@@ -292,4 +292,31 @@ class HW5Spec extends FlatSpec {
       assert(Num(3) == iterateStep(exp))
 
   }
+  
+  "Function call" should "pass by name" in {
+    val exp = 
+      Decl (
+      MVar,
+      "x",
+      Num (0.0),
+      Decl (
+        MConst,
+        "byname",
+        Function (
+          None,
+          List (Tuple3 (PName, "b", TBool)),
+          None,
+          BinOp (
+            Seq,
+            BinOp (
+              Seq,
+              Print (Var ("b")),
+              BinOp (Assign, Var ("x"), Num (100.0))),
+            Var ("b"))),
+        Call (
+          Var ("byname"),
+          List (BinOp (Lt, Var ("x"), Num (3.0))))))
+     
+    assert(Bool(false) == iterateStep(exp))
+  }
 }
