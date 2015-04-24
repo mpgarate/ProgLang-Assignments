@@ -113,10 +113,6 @@ class HW5Spec extends FlatSpec {
     catch {
       case _: StaticTypeError => 
     }
-//    catch {
-//      ???
-//    }
-//    fill in what the error would be...
   }
   
   "functions" should "have multiple parameters" in {
@@ -145,21 +141,7 @@ class HW5Spec extends FlatSpec {
   }
   
   "PRef" should "pass by reference" in {
-//    val fnExpr = BinOp(Assign, Var("b1"), Bool(false)) //is this right?
-//    val fn = Function(Some("times"), List((PRef, "b1", TBool)), None, fnExpr)
-//    
-//    val obj = Obj(Map("a" -> Bool(true)))
-//    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
-//    
-//    assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
-//    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
-    
-    
-    
-//    const f = function(ref x: number) {return x = 3};
-//    var y = 0;
-//    f(y);
-//    y;
+
     val exp = 
       Decl (
         MConst,
@@ -176,12 +158,6 @@ class HW5Spec extends FlatSpec {
           BinOp (Seq, Call (Var ("f"), List (Var ("y"))), Var ("y"))))
     assert(Num(3) == iterateStep(exp))
   }
-  
-//  "Assign Obj" should "change the value of the object field" in {
-//    val seq = BinOp(Seq, BinOp (Assign, GetField(Var ("x"), "f"), Num (10.0)), GetField(Var("x"), "f"))
-//    val exp = Decl(MVar, "x", Obj(Map("f" -> Num (7.0))), seq)
-//    assert(Num(10) == iterateStep(exp))
-//  }
   
   "Simple Assign Obj" should "change the value of the object field" in {
     val exp2 = BinOp(Assign, GetField(Var("o"), "f"), GetField(Var("o"), "f"))
@@ -219,7 +195,22 @@ class HW5Spec extends FlatSpec {
   }
   
   "DoCallConst" should "not allow parameter redeclerations" in {
-    
+    val exp = 
+      Decl (
+        MConst,
+        "f",
+        Function (
+          None,
+          List (Tuple3 (PConst, "x", TNumber)),
+          None,
+          BinOp (Assign, Var ("x"), Num (10.0))),
+        Call (Var ("f"), List (Num (3.0))))
+    try {
+      typeInfer(Map.empty, exp)
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
   }
   
   "DoCallConst" should "evaluate parameters before passing them in" in {

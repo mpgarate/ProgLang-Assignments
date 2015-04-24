@@ -50,7 +50,6 @@ object HW5 extends js.util.JsApp {
   def typeInfer(env: Map[String,(Mut,Typ)], e: Expr): Typ = {
     def typ(e1: Expr) = typeInfer(env, e1)
     def err[T](tgot: Typ, e1: Expr): T = throw new StaticTypeError(tgot, e1)
-    println("e: " + e)
     e match {
       case Print(e1) => typ(e1); TUndefined
       case Num(_) => TNumber
@@ -184,7 +183,7 @@ object HW5 extends js.util.JsApp {
       }
       
       //TypeAssignField
-      case BinOp(Assign, GetField(obj, f), e2) => println("in TypeAssignField"); typ(obj) match {
+      case BinOp(Assign, GetField(obj, f), e2) => typ(obj) match {
         case TObj(tfs) if (tfs.contains(f)) => {
           val te2 = typ(e2);
           if (te2 == tfs(f)) te2 else err(te2, e2)
