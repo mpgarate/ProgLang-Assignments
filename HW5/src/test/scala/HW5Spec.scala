@@ -294,15 +294,22 @@ class HW5Spec extends FlatSpec {
   }
   
   "doCallRef" should "not allow non location expressions to be assigned" in {
-    val exp = Decl (
+    val exp =  Decl (
       MConst,
       "f",
       Function (
         None,
         List (Tuple3 (PRef, "x", TNumber)),
         None,
-        BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
-      Decl (MConst, "y", Num (3.0), Call (Var ("f"), List (Var ("y")))))
+        BinOp (Assign, Var ("x"), Num (10.0))),
+      Call (Var ("f"), List (Num (1.0))))
+    try {
+      iterateStep(exp)
+      fail()
+    }
+    catch {
+      case _ => 
+    }
     try {
       typeInfer(Map.empty, exp)
       fail()
