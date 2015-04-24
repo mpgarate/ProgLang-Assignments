@@ -323,8 +323,8 @@ object HW5 extends js.util.JsApp {
         }
         println("ep: " + ep)
 //        stepIfNotValue(Some(ep))
-        for (e1p <- step(ep)) yield (e1p)
-        //State.insert(ep)
+//        for (e1p <- step(ep)) yield (e1p)
+        State.insert(ep)
 
         
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) => println("m: " + m + " arg: " + arg)
