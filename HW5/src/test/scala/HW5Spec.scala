@@ -213,6 +213,13 @@ class HW5Spec extends FlatSpec {
           Num (0.0))),
       Call (Var ("func"), List (Num (5.0))))
     assert(Num(15) == iterateStep(exp))
+    
+    /**
+     * const func = function sum(const n: number): => number {
+     *   n > 0 ? (sum(n - 1)) : 0;
+     * }
+     * func(5);
+     */
   }
   
   "DoCallConst" should "not allow parameter redeclerations" in {

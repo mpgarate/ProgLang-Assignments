@@ -248,6 +248,7 @@ object HW5 extends js.util.JsApp {
   /* A small-step transition. */
   def step(e: Expr): State[Mem, Expr] = {
     println("in step")
+    println(e)
     require(!isValue(e), "stepping on a value: %s".format(e))
     
     /*** Helpers for Call ***/
@@ -314,18 +315,17 @@ object HW5 extends js.util.JsApp {
           }
         }
         
+        // DoCall
       case Call(v @ Function(p, _, _, e), Nil) => 
-        println("in Call Func")
-        /*** Fill-in the DoCall and DoCallRec cases */
-        val ep = p match {
-          case None => e
-          case Some(x) => substitute(e, x, v)
-        }
-        println("ep: " + ep)
-//        stepIfNotValue(Some(ep))
-//        for (e1p <- step(ep)) yield (e1p)
-        State.insert(ep)
+        println("DoCall")
+        State.insert(e)
 
+        // DoCallRec
+      case Call(v @ Function(Some(x), xs, tan, e), args) => {
+        println("DoCallRec")
+        val vp = Function(None, xs, tan, substitute(e, x, v))
+        State.insert(Call(vp, args))
+      }
         
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) => println("m: " + m + " arg: " + arg)
         (m, arg) match {
