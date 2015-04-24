@@ -327,24 +327,16 @@ object HW5 extends js.util.JsApp {
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-          case (PConst, arg) => {
-
-            // Thought on a more functional style:
-            //
-             State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
-            //
-            // But, when there are only 2 args left, the Call signature does not match this case
-            // and the final step is not performed. 
-
-//            var expr = substitute(e, x, arg)
-//            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
-//            State.insert(expr)
-          }
+          case (PConst, arg) => 
+            State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
           case (PName, arg) => 
-            val v1 = Call(Function(p, xs, tann, substitute(e, x, arg)), args)
-            for (m <- State[Mem]) yield v1
-          case (PRef, arg) => ???
-          case (PVar, arg) => Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
+            State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
+//            val v1 = Call(Function(p, xs, tann, substitute(e, x, arg)), args)
+//            for (m <- State[Mem]) yield v1
+          case (PRef, arg) => 
+            State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
+          case (PVar, arg) => 
+            Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
           case _ => throw StuckError(e)
         } 
       
