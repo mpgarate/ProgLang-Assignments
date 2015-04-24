@@ -327,13 +327,11 @@ object HW5 extends js.util.JsApp {
       case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
-          case (PConst, arg) => 
+          case (PConst, arg) if isValue(arg) => 
             State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
           case (PName, arg) => 
             State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
-//            val v1 = Call(Function(p, xs, tann, substitute(e, x, arg)), args)
-//            for (m <- State[Mem]) yield v1
-          case (PRef, arg) => 
+          case (PRef, arg) if isLValue(arg) => 
             State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
           case (PVar, arg) => 
             Mem.alloc(arg).map (p => substitute(e, x, UnOp(Deref, p)))
@@ -422,6 +420,7 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
+
       
       // SearchCallRef + SearchCallVarConst
       case Call(func @ Function(_, (m, _, _) :: xs, tann, e), arg :: e2) =>
@@ -431,10 +430,12 @@ object HW5 extends js.util.JsApp {
           case ((PConst | PVar), arg) => for (argp <- step(arg)) yield {
             Call(func, List(argp))
           }
-          case (PName, arg) => ???
           //SearchCallRef
-          case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => ???
-//             Call(func, e2.map { x => if (x == arg) step(arg) })
+          case (PRef, arg) if (!isLValue(arg)) => 
+            for (argp <- step(arg)) yield {
+              Call(func, List(argp))
+            }
+//            Call(func, e2.map { x => if (x == arg) step(arg) })
         } 
       
       //SearchCallFun
