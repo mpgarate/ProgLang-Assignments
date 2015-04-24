@@ -309,7 +309,6 @@ object HW5 extends js.util.JsApp {
         }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
-        println("do function call")
         /*** Fill-in the DoCall and DoCallRec cases */
         val ep = p match {
           case None => e
@@ -325,14 +324,14 @@ object HW5 extends js.util.JsApp {
 
             // Thought on a more functional style:
             //
-            // State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
+             State.insert(Call(Function(p, xs, tann, substitute(e, x, arg)), args))
             //
             // But, when there are only 2 args left, the Call signature does not match this case
             // and the final step is not performed. 
 
-            var expr = substitute(e, x, arg)
-            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
-            State.insert(expr)
+//            var expr = substitute(e, x, arg)
+//            (xs, args).zipped.foreach(((xn), argn) => expr = substitute(expr, xn._2, argn))
+//            State.insert(expr)
           }
           case (PName, arg) => ???
           case (PRef, arg) => ???
@@ -422,23 +421,29 @@ object HW5 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(m, x, e1p, e2)
       }
       
-      //SearchCallFun
-      case Call(e1, e2) =>
-        println("searching call...")
-        println(e1)
-        println(e2)
-        for (e1p <- step(e1)) yield Call(e1p, e2)
       
-        
+      // SearchCallRef + SearchCallVarConst
       case Call(func @ Function(_, (m, _, _) :: xs, tann, e), arg :: e2) =>
+        println("SearchCallRef + SearchCallVarConst")
         (m, arg) match {
           //SearchCallVarConst
-          case ((PConst | PVar), arg) => ???
+          case ((PConst | PVar), arg) => for (argp <- step(arg)) yield {
+            Call(func, List(argp))
+          }
           case (PName, arg) => ???
           //SearchCallRef
           case (PRef, arg) if (isLValue(arg) && !isValue(arg)) => ???
 //             Call(func, e2.map { x => if (x == arg) step(arg) })
         } 
+      
+      //SearchCallFun
+      case Call(e1, e2) =>
+        println("SearchCallFun")
+        println(e1)
+        println(e2)
+        for (e1p <- step(e1)) yield Call(e1p, e2)
+      
+        
         
       // ^^I think thats all the search rules
       
@@ -516,7 +521,7 @@ object HW5 extends js.util.JsApp {
     }
       
     handle(fail()) {
-      val t = inferType(expr)
+      //val t = inferType(expr)
     }
     
     handle() {
