@@ -207,6 +207,7 @@ class HW5Spec extends FlatSpec {
         Call (Var ("f"), List (Num (3.0))))
     try {
       typeInfer(Map.empty, exp)
+      fail()
     }
     catch {
       case _: StaticTypeError => 
@@ -302,7 +303,13 @@ class HW5Spec extends FlatSpec {
         None,
         BinOp (Assign, Var ("x"), BinOp (Plus, Var ("x"), Num (1.0)))),
       Decl (MConst, "y", Num (3.0), Call (Var ("f"), List (Var ("y")))))
-    //not sure what error should be called
+    try {
+      typeInfer(Map.empty, exp)
+      fail()
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
   }
   
   "object fields" should " allow nested objects" in {
