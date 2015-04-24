@@ -529,7 +529,7 @@ object HW5 extends js.util.JsApp {
     }
       
     handle(fail()) {
-      //val t = inferType(expr)
+     val t = inferType(expr)
     }
     
     handle() {
