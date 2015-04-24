@@ -145,14 +145,36 @@ class HW5Spec extends FlatSpec {
   }
   
   "PRef" should "pass by reference" in {
-    val fnExpr = BinOp(Assign, Var("b1"), Bool(false)) //is this right?
-    val fn = Function(Some("times"), List((PRef, "b1", TBool)), None, fnExpr)
+//    val fnExpr = BinOp(Assign, Var("b1"), Bool(false)) //is this right?
+//    val fn = Function(Some("times"), List((PRef, "b1", TBool)), None, fnExpr)
+//    
+//    val obj = Obj(Map("a" -> Bool(true)))
+//    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
+//    
+//    assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
+//    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
     
-    val obj = Obj(Map("a" -> Bool(true)))
-    val exp = (BinOp(Or, Bool(false), GetField(obj, "a")))
     
-    assert(Num(12) == iterateStep(Call(fn, List(Num(3), Num(4)))))
-    assert(Num(18) == iterateStep(Call(fn, List(Num(3), If(GetField(obj, "a"), BinOp(Plus, Num(4), Num(2)), BinOp(Minus, Num(3), Num(3)) )))))
+    
+//    const f = function(ref x: number) {return x = 3};
+//    var y = 0;
+//    f(y);
+//    y;
+    val exp = 
+      Decl (
+        MConst,
+        "f",
+        Function (
+          None,
+          List (Tuple3 (PRef, "x", TNumber)),
+          None,
+          BinOp (Assign, Var ("x"), Num (3.0))),
+        Decl (
+          MVar,
+          "y",
+          Num (0.0),
+          BinOp (Seq, Call (Var ("f"), List (Var ("y"))), Var ("y"))))
+    assert(Num(3) == iterateStep(exp))
   }
   
 //  "Assign Obj" should "change the value of the object field" in {

@@ -50,7 +50,7 @@ object HW5 extends js.util.JsApp {
   def typeInfer(env: Map[String,(Mut,Typ)], e: Expr): Typ = {
     def typ(e1: Expr) = typeInfer(env, e1)
     def err[T](tgot: Typ, e1: Expr): T = throw new StaticTypeError(tgot, e1)
-
+    println("e: " + e)
     e match {
       case Print(e1) => typ(e1); TUndefined
       case Num(_) => TNumber
@@ -224,7 +224,7 @@ object HW5 extends js.util.JsApp {
   
   /* Capture-avoiding substitution in e replacing variables x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
-    println("substitute " + x + " for " + esub)
+    println("substitute " + x + " for " + esub + " in the expression " + e)
     def subst(e: Expr): Expr = substitute(e, x, esub)
     val ep: Expr = e
     ep match {
@@ -248,7 +248,6 @@ object HW5 extends js.util.JsApp {
   /* A small-step transition. */
   def step(e: Expr): State[Mem, Expr] = {
     println("in step")
-    println(e)
     require(!isValue(e), "stepping on a value: %s".format(e))
     
     /*** Helpers for Call ***/
@@ -316,15 +315,19 @@ object HW5 extends js.util.JsApp {
         }
         
       case Call(v @ Function(p, _, _, e), Nil) => 
+        println("in Call Func")
         /*** Fill-in the DoCall and DoCallRec cases */
         val ep = p match {
           case None => e
           case Some(x) => substitute(e, x, v)
         }
-        State.insert(ep)
+        println("ep: " + ep)
+//        stepIfNotValue(Some(ep))
+        for (e1p <- step(ep)) yield (e1p)
+        //State.insert(ep)
 
         
-      case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) =>
+      case Call(Function(p, (m, x, _) :: xs, tann, e), arg :: args) if argApplyable(m, arg) => println("m: " + m + " arg: " + arg)
         (m, arg) match {
           /*** Fill-in the remaining DoCall cases  ***/
           case (PConst, arg) if isValue(arg) => 
