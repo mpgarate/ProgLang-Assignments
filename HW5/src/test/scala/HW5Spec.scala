@@ -34,6 +34,18 @@ class HW5Spec extends FlatSpec {
       case _: StaticTypeError => 
     }
     
+    //should throw error if an argument type doesn't match the parameter type
+    
+    try{
+      val call = Call (Var ("f"), List (Num (1.0)))
+      val func = Function (None, List (Tuple3 (PConst, "x", TString)), None, Print (Var ("x")))
+      typeInfer(Map.empty, Decl ( MConst, "f", func , call) )
+      fail()
+    }
+    catch {
+      case _: StaticTypeError => 
+    }
+    
     
     
   }
