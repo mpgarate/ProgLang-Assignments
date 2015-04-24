@@ -4,8 +4,6 @@ const while = function while(name b: bool): (name body: Undefined) => Undefined 
     }
   };
 
-
-
 const for = function for(name init: number, name condition: bool): (name step: Undefined) => (name body: Undefined) => Undefined {
   return function (name step: Undefined) {
     return function (name body: Undefined) {
