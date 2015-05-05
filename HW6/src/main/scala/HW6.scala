@@ -57,8 +57,10 @@ object HW6 extends js.util.JsApp {
    */
   def subtypeBasic(s: Typ, t: Typ): StateBoolean[Set[(Typ, Typ)]] = 
     (s, t) match {
+      //SubFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) =>
         ???
+      //SubObj
       case (TObj(sfs), TObj(tfs)) =>
         (tfs foldLeft State.trueS[Set[(Typ, Typ)]]) {
           case (b, (f, t1)) => 
@@ -111,8 +113,10 @@ object HW6 extends js.util.JsApp {
         for { u1 <- join(s, t.unfold) } yield TInterface(tvar)(u1)
       case (s @ TInterface(svar, s1), _) =>
         for { u1 <- join(s.unfold, t) } yield TInterface(svar)(u1)
+      //JoinFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         ???
+      //JoinObj
       case (TObj(sfs), TObj(tfs)) =>
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => 
@@ -141,8 +145,10 @@ object HW6 extends js.util.JsApp {
         for { u1 <- meet(s, t.unfold) } yield TInterface(tvar)(u1)
       case (s @ TInterface(svar, s1), _) =>
         for { u1 <- meet(s.unfold, t) } yield TInterface(svar)(u1)
+      //MeetFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         ???
+      //MeetObj      
       case (TObj(sfs), TObj(tfs)) =>
         ???
       case (s, t) =>
@@ -235,6 +241,7 @@ object HW6 extends js.util.JsApp {
         }
         case tgot => err(tgot, e1)
       }
+      //TypeEqual
       case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
         case t1 if !hasFunctionTyp(t1) => 
           ???
@@ -286,6 +293,7 @@ object HW6 extends js.util.JsApp {
         }
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
+        //Need both TypeFunAnn and TypeFunRec
         ???
       }
       
@@ -303,13 +311,20 @@ object HW6 extends js.util.JsApp {
         val t1 = typ(e1)
         val env1 = env + (x -> (mut, t1))
         typeInfer(env1, e2)
-       
+      
+      //TypeAssign --- need both TypeAssignVar and TypeAssign Fld
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
         ???
       
       /*** Fill-in more cases here. ***/
+      //TypeIf
+      case If(e1, e2, e3) =>
+        ???
+      //TypeCast
+      case UnOp(Cast(t), e1) =>
+        ???
         
       /* Should not match: non-source expressions or should have been eliminated */
       case Addr(_) | UnOp(Deref, _) | InterfaceDecl(_, _, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
