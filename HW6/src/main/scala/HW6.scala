@@ -57,10 +57,10 @@ object HW6 extends js.util.JsApp {
    */
   def subtypeBasic(s: Typ, t: Typ): StateBoolean[Set[(Typ, Typ)]] = 
     (s, t) match {
-      //SubFun
+      // SubFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) =>
         ???
-      //SubObj
+      // SubObj
       case (TObj(sfs), TObj(tfs)) =>
         (tfs foldLeft State.trueS[Set[(Typ, Typ)]]) {
           case (b, (f, t1)) => 
@@ -113,10 +113,10 @@ object HW6 extends js.util.JsApp {
         for { u1 <- join(s, t.unfold) } yield TInterface(tvar)(u1)
       case (s @ TInterface(svar, s1), _) =>
         for { u1 <- join(s.unfold, t) } yield TInterface(svar)(u1)
-      //JoinFun
+      // JoinFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         ???
-      //JoinObj
+      // JoinObj
       case (TObj(sfs), TObj(tfs)) =>
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => 
@@ -145,10 +145,10 @@ object HW6 extends js.util.JsApp {
         for { u1 <- meet(s, t.unfold) } yield TInterface(tvar)(u1)
       case (s @ TInterface(svar, s1), _) =>
         for { u1 <- meet(s.unfold, t) } yield TInterface(svar)(u1)
-      //MeetFun
+      // MeetFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         ???
-      //MeetObj      
+      // MeetObj
       case (TObj(sfs), TObj(tfs)) =>
         ???
       case (s, t) =>
@@ -241,7 +241,7 @@ object HW6 extends js.util.JsApp {
         }
         case tgot => err(tgot, e1)
       }
-      //TypeEqual
+      // TypeEqual
       case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
         case t1 if !hasFunctionTyp(t1) => 
           ???
@@ -293,7 +293,7 @@ object HW6 extends js.util.JsApp {
         }
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
-        //Need both TypeFunAnn and TypeFunRec
+        // Need both TypeFunAnn and TypeFunRec
         ???
       }
       
@@ -311,20 +311,22 @@ object HW6 extends js.util.JsApp {
         val t1 = typ(e1)
         val env1 = env + (x -> (mut, t1))
         typeInfer(env1, e2)
-      
-      //TypeAssign --- need both TypeAssignVar and TypeAssign Fld
+       
+      // TypeAssign --- need both TypeAssignVar and TypeAssignFld
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
         ???
       
       /*** Fill-in more cases here. ***/
-      //TypeIf
-      case If(e1, e2, e3) =>
-        ???
-      //TypeCast
-      case UnOp(Cast(t), e1) =>
-        ???
+        
+//      // TypeIf
+//      case If(e1, e2, e3) =>
+//        ???
+//
+//      // TypeCast
+//      case UnOp(Cast(t), e1) =>
+//        ???
         
       /* Should not match: non-source expressions or should have been eliminated */
       case Addr(_) | UnOp(Deref, _) | InterfaceDecl(_, _, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
@@ -357,7 +359,7 @@ object HW6 extends js.util.JsApp {
   /* Substitution in e replacing variable x with esub. */
   def substitute(e: Expr, x: String, esub: Expr): Expr = {
     def subst(e: Expr): Expr = substitute(e, x, esub)
-    e match {
+    val ep = e match {
       case Num(_) | Bool(_) | Undefined | Str(_) | Addr(_) | Null => e
       case Print(e1) => Print(subst(e1))
       case UnOp(uop, e1) => UnOp(uop, subst(e1))
@@ -373,6 +375,7 @@ object HW6 extends js.util.JsApp {
       case GetField(e, f) => GetField(subst(e), f)
       case InterfaceDecl(tvar, t, e) => InterfaceDecl(tvar, t, subst(e))
     }
+    if (ep.pos != NoPosition) ep else ep.setPos(e.pos)
   }
 
   /* A small-step transition. */
@@ -422,11 +425,14 @@ object HW6 extends js.util.JsApp {
         State.insert( Num(n1 / n2) )
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
-      //DoObj?
+      // DoObj?
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
         for (a <- Mem.alloc(e)) yield a
       case GetField(a @ Addr(_), f) =>
-        for (m <- State.init[Mem]) yield { val Obj(fs) = m(a); fs(f) }
+        for (m <- State.init[Mem]) yield { 
+          val Obj(fs) = m(a); 
+          fs.get(f) getOrElse { throw DynamicTypeError(e) } 
+        }
       case Call(v1, es) if isValue(v1) && (es forall isValue) =>
         v1 match {
           case Function(p, txs, _, e1) => {
@@ -440,37 +446,38 @@ object HW6 extends js.util.JsApp {
           }
           case _ => throw new StuckError(e)
         }
-      //DoConst
+      // DoConst
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
         State.insert(substitute(e2, x, v1))
-      //DoVarDecl
+      // DoVarDecl
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
         for (a <- Mem.alloc(v1)) yield substitute(e2, x, UnOp(Deref, a))
-      //DoAssignVar
+      // DoAssignVar
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
         for (_ <- State.modify { (m: Mem) => m + (a -> v) }) yield v
-      //DoAssignField
+      // DoAssignField
       case BinOp(Assign, GetField(a @ Addr(_), f), v) if isValue(v) =>
         for (m <- State.init[Mem];
              _ <- State.modify { (m: Mem) => 
-               val Obj(fs) = m(a)
-               m + (a -> Obj(fs + (f -> v))) 
+               val e1 @ Obj(fs) = m(a)
+               if (fs contains f) m + (a -> Obj(fs + (f -> v)).setPos(e1.pos))
+               else throw DynamicTypeError(e)
              }) yield v
-      //DoDeref
+      // DoDeref
       case UnOp(Deref, a @ Addr(_)) =>
         for (m <- State.init[Mem]) yield m(a)
  
       /*** Fill-in more Do cases here. ***/
-      //DoCast
-      //DoNullDeref
-      //DoNullAssign
+      // DoCast
+      // DoNullDeref
+      // DoNullAssign
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
         for (e1p <- step(e1)) yield Print(e1p)
       case UnOp(uop, e1) =>
         for (e1p <- step(e1)) yield UnOp(uop, e1p)
-      //SearchAssign2
+      // SearchAssign2
       case BinOp(Assign, lv1, e2) if isLValue(lv1) =>
         for (e2p <- step(e2)) yield BinOp(Assign, lv1, e2p)
       case BinOp(bop, v1, e2) if isValue(v1) =>
@@ -492,12 +499,10 @@ object HW6 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(mut, x, e1p, e2)
 
       /*** Fill-in more Search cases here. ***/
-      //SearchCall2
-      //SearchCall1
-      //SearchAssign2
-      //SearchAssign1
-      
         
+      // SearchCall2
+      // SearchCall1
+      // SearchAssign1
         
       /* Everything else is a dynamic type error. */
       case _ => println(e); (throw DynamicTypeError(e)): State[Mem, Expr]

@@ -18,6 +18,9 @@ interface List {
 
 
 
+
+
+
 function newList(): List {
   interface ListRep {
     first: Node;
@@ -58,7 +61,4 @@ function newList(): List {
 };
 
 const l = newList();
-l.add(1);
-l.add(4);
-l.add(5);
-l.foreach(function(e: number) { console.log(e); })
+l.add(1).add(4).add(5).foreach(function(e: number) { console.log(e); })

@@ -360,7 +360,7 @@ object ast {
   *   throw DynamicTypeError(e)
   * 
   */
-  case class DynamicTypeError(e: Expr) extends JsException("Type Error", e.pos)
+  case class DynamicTypeError(e: Expr) extends JsException("Dynamic Type Error", e.pos)
   
   /*
    * Static Type Error exception.  Throw this exception to signal a static

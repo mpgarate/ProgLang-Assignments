@@ -59,10 +59,10 @@ object print extends PrettyPrinter {
       case v if isValue(v) => 0
       case Var(_) => 0
       case Obj(_) => 0
-      case GetField(_, _) => 0
       case Addr(_) => 0
       case Call(_, _) => 1
       case Print(_) => 1
+      case GetField(_, _) => 2
       case UnOp(_, _) => 2
       case BinOp(bop, _, _) =>
         bop match {

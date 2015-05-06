@@ -149,19 +149,30 @@ object parse extends JavaTokenParsers {
     callExpr
     
   def callExpr: Parser[Expr] =
+    positioned(simpleCallExpr ~ opt(rep("." ~> ident ~ rep(callArgs))) ^^ {
+      case e~None => e
+      case e~Some(cs) => (e /: cs) {
+        case (e, f~args) =>
+          ((GetField(e, f).setPos(e.pos): Expr) /: args) {
+            case (e1, e2) => Call(e1, e2).setPos(e1.pos) 
+          }
+      }
+    })
+            
+  def simpleCallExpr: Parser[Expr] =
     positioned("console.log(" ~> assignExpr <~ ")" ^^ { Print(_) }) |  
     positioned(functionExpr ~ rep(callArgs) ^^ 
         { case e1~args => 
           (e1 /: args) { case (e1, e2) => Call(e1, e2).setPos(e1.pos) } })
-    
+  
   def callArgs: Parser[List[Expr]] =
     "(" ~> rep(assignExpr <~ ",") ~ opt(assignExpr) <~ ")" ^^
       { case es~eopt => es ++ eopt }
-          
+    
   def functionExpr: Parser[Expr] =
     positioned("function" ~> opt(ident) ~ functionParams ~ opt(typAnn) ~ functionBody ^^
         { case f~params~tann~e => Function(f, params, tann, e) }) |
-    memberExpr
+    primaryExpr
          
   def functionParams: Parser[Params] =
     "(" ~> params <~ ")"
@@ -180,16 +191,12 @@ object parse extends JavaTokenParsers {
         }
     })
     
-  def memberExpr: Parser[Expr] =
-    positioned (primaryExpr ~ rep("." ~> ident) ^^ 
-        { case e~fs => (fs foldLeft e) (GetField(_, _)) } 
-    )
       
   def fieldDecl: Parser[(String, Expr)] =
     ident ~ (":" ~> assignExpr) ^^ { case f~e => (f, e)}
     
   def primaryExpr: Parser[Expr] = 
-    literal |
+    literalExpr |
     positioned(ident ^^ { Var(_) }) |
     "(" ~> expr <~ ")" |
     "{" ~> stmt <~ "}"
@@ -200,7 +207,7 @@ object parse extends JavaTokenParsers {
     }, { id => s"$id is reserved." }) | 
     "$" ~> super.ident ^^ (s => "$" + s)
   
-  def literal: Parser[Expr] =
+  def literalExpr: Parser[Expr] =
     positioned("true" ^^^ Bool(true)) |
     positioned("false" ^^^ Bool(false)) |
     positioned("undefined" ^^^ Undefined) |
