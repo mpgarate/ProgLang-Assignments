@@ -470,6 +470,7 @@ object HW6 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Print(e1p)
       case UnOp(uop, e1) =>
         for (e1p <- step(e1)) yield UnOp(uop, e1p)
+      //SearchAssign2
       case BinOp(Assign, lv1, e2) if isLValue(lv1) =>
         for (e2p <- step(e2)) yield BinOp(Assign, lv1, e2p)
       case BinOp(bop, v1, e2) if isValue(v1) =>
@@ -491,6 +492,12 @@ object HW6 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(mut, x, e1p, e2)
 
       /*** Fill-in more Search cases here. ***/
+      //SearchCall2
+      //SearchCall1
+      //SearchAssign2
+      //SearchAssign1
+      
+        
         
       /* Everything else is a dynamic type error. */
       case _ => println(e); (throw DynamicTypeError(e)): State[Mem, Expr]
