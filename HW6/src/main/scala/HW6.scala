@@ -422,6 +422,7 @@ object HW6 extends js.util.JsApp {
         State.insert( Num(n1 / n2) )
       case If(Bool(b1), e2, e3) => 
         State.insert( if (b1) e2 else e3 )
+      //DoObj?
       case Obj(fs) if (fs forall { case (_, vi) => isValue(vi)}) =>
         for (a <- Mem.alloc(e)) yield a
       case GetField(a @ Addr(_), f) =>
@@ -439,23 +440,30 @@ object HW6 extends js.util.JsApp {
           }
           case _ => throw new StuckError(e)
         }
+      //DoConst
       case Decl(MConst, x, v1, e2) if isValue(v1) =>
         State.insert(substitute(e2, x, v1))
+      //DoVarDecl
       case Decl(MVar, x, v1, e2) if isValue(v1) =>
         for (a <- Mem.alloc(v1)) yield substitute(e2, x, UnOp(Deref, a))
+      //DoAssignVar
       case BinOp(Assign, UnOp(Deref, a @ Addr(_)), v) if isValue(v) =>
         for (_ <- State.modify { (m: Mem) => m + (a -> v) }) yield v
+      //DoAssignField
       case BinOp(Assign, GetField(a @ Addr(_), f), v) if isValue(v) =>
         for (m <- State.init[Mem];
              _ <- State.modify { (m: Mem) => 
                val Obj(fs) = m(a)
                m + (a -> Obj(fs + (f -> v))) 
              }) yield v
+      //DoDeref
       case UnOp(Deref, a @ Addr(_)) =>
         for (m <- State.init[Mem]) yield m(a)
  
       /*** Fill-in more Do cases here. ***/
-      
+      //DoCast
+      //DoNullDeref
+      //DoNullAssign
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
