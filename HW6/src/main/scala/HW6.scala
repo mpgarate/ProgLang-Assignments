@@ -469,8 +469,12 @@ object HW6 extends js.util.JsApp {
  
       /*** Fill-in more Do cases here. ***/
       // DoCast
+      case UnOp(Cast(ta), e1) => 
+        State.insert(e1) 
       // DoNullDeref
+      case UnOp(Deref, e1) => throw NullDereferenceError(e1)
       // DoNullAssign
+      case BinOp(Assign, Null, e2) => throw NullDereferenceError(e2)
         
       /* Inductive Cases: Search Rules */
       case Print(e1) =>
