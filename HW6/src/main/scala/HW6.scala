@@ -482,6 +482,7 @@ object HW6 extends js.util.JsApp {
         for (e2p <- step(e2)) yield BinOp(Assign, lv1, e2p)
       case BinOp(bop, v1, e2) if isValue(v1) =>
         for (e2p <- step(e2)) yield BinOp(bop, v1, e2p)
+      //SearchAssign1 + SearchBop1?
       case BinOp(bop, e1, e2) =>
         for (e1p <- step(e1)) yield BinOp(bop, e1p, e2)
       case If(e1, e2, e3) =>
@@ -501,8 +502,12 @@ object HW6 extends js.util.JsApp {
       /*** Fill-in more Search cases here. ***/
         
       // SearchCall2
+      case Call(v1, arg :: e2) if (isValue(v1)) =>
+        for (argp <- step(arg)) yield Call(v1, List(argp))
+         
       // SearchCall1
-      // SearchAssign1
+      case Call(e1, e2) =>
+        for (e1p <- step(e1)) yield Call(e1p, e2)
         
       /* Everything else is a dynamic type error. */
       case _ => println(e); (throw DynamicTypeError(e)): State[Mem, Expr]
