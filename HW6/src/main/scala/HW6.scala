@@ -329,9 +329,6 @@ object HW6 extends js.util.JsApp {
       
       /*** Fill-in more cases here. ***/
         
-//      // TypeIf
-//      case If(e1, e2, e3) =>
-//        ???
 //
 //      // TypeCast
 //      case UnOp(Cast(t), e1) =>
