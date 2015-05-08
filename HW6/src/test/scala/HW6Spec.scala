@@ -20,6 +20,19 @@ class HW6Spec extends FlatSpec {
      assert(!(s <:< t)) 
      assert(!(u <:< s))
   }
+  
+  "<:<" should "determine subtype for functions" in {
+    val fn1xs = List(("a", TNumber))
+    val fn1t = TBool
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TString))
+    val fn2t = TBool
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
+    assert(tfn2 <:< tfn1)
+    assert(!(tfn1 <:< tfn2))
+  }
 
   "|:|" should "compute the join of two types if it exists" in {
     val t1 = TObj(Map("x" -> TNumber, "y" -> TBool))

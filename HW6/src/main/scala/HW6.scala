@@ -59,18 +59,13 @@ object HW6 extends js.util.JsApp {
     (s, t) match {
       // SubFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) =>
-        // TODO: not tested yet
-//        val allTrue = (sxs, txs).zipped.forall {
-//          (t1, t2) => subtype(t1._2, t2._2) == State.trueS
-//        }
-//        
-//        if(allTrue){
-//          State.trueS
-//        } else {
-//          State.falseS
-//        }
-//        
-        ???
+        if (sxs.length <= txs.length || subtype(sret, tret) == State.falseS){
+          State.falseS
+        } else {
+          ((sxs, txs).zipped foldLeft State.trueS[Set[(Typ, Typ)]]){
+            case (b, (xs, tx)) => subtype(xs._2, tx._2)
+          }
+        }
   
       // SubObj
       case (TObj(sfs), TObj(tfs)) =>
@@ -520,8 +515,8 @@ object HW6 extends js.util.JsApp {
       /*** Fill-in more Search cases here. ***/
         
       // SearchCall2
-      case Call(v1, arg :: e2) if (isValue(v1)) =>
-        for (argp <- step(arg)) yield Call(v1, List(argp))
+      case Call(v1, args) if (isValue(v1)) =>
+        for (argp <- stepFirst(args)) yield Call(v1, argp)
          
       // SearchCall1
       case Call(e1, e2) =>
