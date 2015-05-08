@@ -393,10 +393,9 @@ object HW6 extends js.util.JsApp {
     def stepFirst(l: List[Expr]): State[Mem, List[Expr]] = l match {
       case Nil => State.insert(Nil)
       case e :: es if !isValue(e) => 
-        step(e)
-        ???
+       for (ep <- step(e)) yield (List(ep))
       case e :: es =>
-        State.insert(List(e))
+        stepFirst(es)
     }
     
     /*** Body ***/
