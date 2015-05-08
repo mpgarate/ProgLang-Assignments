@@ -59,12 +59,26 @@ object HW6 extends js.util.JsApp {
     (s, t) match {
       // SubFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) =>
+        // TODO: not tested yet
+//        val allTrue = (sxs, txs).zipped.forall {
+//          (t1, t2) => subtype(t1._2, t2._2) == State.trueS
+//        }
+//        
+//        if(allTrue){
+//          State.trueS
+//        } else {
+//          State.falseS
+//        }
+//        
         ???
+  
       // SubObj
       case (TObj(sfs), TObj(tfs)) =>
         (tfs foldLeft State.trueS[Set[(Typ, Typ)]]) {
-          case (b, (f, t1)) => 
-            ???
+          case (b, (f, t1)) => sfs.get(f) match {
+            case Some(t2) => subtype(t2, t1)
+            case None => State.falseS
+          }
         }
       case (TNull, TObj(_)) => State.trueS
       case (_, t @ TInterface(tvar, t1)) =>
