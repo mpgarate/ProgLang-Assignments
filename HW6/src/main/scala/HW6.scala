@@ -388,6 +388,8 @@ object HW6 extends js.util.JsApp {
   def step(e: Expr): State[Mem, Expr] = {
     require(!isValue(e), "stepping on a value:\n%s".format(e))
     
+    println("e: " + e)
+    
     /*** Helper for Call ***/
 
     def stepFirst(l: List[Expr]): State[Mem, List[Expr]] = l match {
@@ -444,10 +446,11 @@ object HW6 extends js.util.JsApp {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
               //substitute each parameter into the expression
-              (param, _) => param match {
-                case ((str, typ), ei) => substitute(e1, str, ei)
+              (param, en) => param match {
+                case ((str, typ), ei) => println("in substitution"); substitute(en, str, ei)
               }
             }
+            println("e1p: " + e1p)
             p match {
               case None => State.insert(e1p)
               case Some(x1) => State.insert(substitute(e1p, x1, v1))

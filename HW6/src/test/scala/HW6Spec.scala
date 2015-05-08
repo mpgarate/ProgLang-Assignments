@@ -64,5 +64,14 @@ class HW6Spec extends FlatSpec {
     assert(TNull =:= (t2 &:& s2).get)
   }
   
+  "Do function test" should "successfully run a function" in {
+    val xs = List(("x", TNumber), ("b", TBool));
+    val e1 = If(Var("b"), Bool(true), Bool(false));
+    val func = Function(None, xs, None,  e1);
+    val params = List(Num(5), Bool(true))
+    val call = Call(func, params)
+    assert(Bool(true) == iterateStep(call))
+  } 
+  
   // You probably want to write some tests for typeInfer and step.
 }
