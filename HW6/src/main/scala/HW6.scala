@@ -387,9 +387,10 @@ object HW6 extends js.util.JsApp {
     def stepFirst(l: List[Expr]): State[Mem, List[Expr]] = l match {
       case Nil => State.insert(Nil)
       case e :: es if !isValue(e) => 
+        step(e)
         ???
       case e :: es =>
-        ???
+        State.insert(List(e))
     }
     
     /*** Body ***/
@@ -437,7 +438,10 @@ object HW6 extends js.util.JsApp {
         v1 match {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
-              ???
+              //substitute each parameter into the expression
+              (param, _) => param match {
+                case ((str, typ), ei) => substitute(e1, str, ei)
+              }
             }
             p match {
               case None => State.insert(e1p)
@@ -504,11 +508,16 @@ object HW6 extends js.util.JsApp {
         for (e1p <- step(e1)) yield Decl(mut, x, e1p, e2)
 
       /*** Fill-in more Search cases here. ***/
+      
+//      case Call(v1, e2) if (isValue(v1)) =>
+//        State.insert(stepFirst(e2))
         
       // SearchCall2
       case Call(v1, arg :: e2) if (isValue(v1)) =>
         for (argp <- step(arg)) yield Call(v1, List(argp))
-         
+      case Call(v1, arg :: e2) if (isValue(v1)) =>
+        State.insert(Call(v1, List(arg)))
+        
       // SearchCall1
       case Call(e1, e2) =>
         for (e1p <- step(e1)) yield Call(e1p, e2)
