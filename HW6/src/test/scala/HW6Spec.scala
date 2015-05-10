@@ -71,6 +71,16 @@ class HW6Spec extends FlatSpec {
     val params = List(Num(5), Bool(true))
     val call = Call(func, params)
     assert(Bool(true) == iterateStep(call))
+  }
+  
+  "Passing in Object" should "successfully pass an object" in {
+    val xs = List(("b", TBool),("o", TObj(Map("x" -> TNumber))));
+    val e1 = If(Var("b"), GetField(Var("o"), "x"), Num(0));
+    val func = Function(None, xs, None,  e1);
+    val obj = Obj(Map("x" -> BinOp(Plus, Num(3), Num(3))))
+    val params = List(Bool(true), obj)
+    val call = Call(func, params)
+    assert(Num(6) == iterateStep(call))
   } 
   
   // You probably want to write some tests for typeInfer and step.
