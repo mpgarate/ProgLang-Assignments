@@ -115,6 +115,7 @@ object HW6 extends js.util.JsApp {
     checkCache(Join, s, t) orElse joinBasic(s, t)
      
   def joinBasic(s: Typ, t: Typ): StateOption[Cache, Typ] = {
+    println("join " + s + " and " + t)
     (s, t) match {
       case (TNull, TObj(_)) => State.some(t)
       case (TObj(_), TNull) => State.some(s)
@@ -125,12 +126,48 @@ object HW6 extends js.util.JsApp {
       // JoinFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         ???
+        
       // JoinObj
       case (TObj(sfs), TObj(tfs)) =>
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => 
-            ???
+            for (suf <- sufs) yield {
+              tfs.get(f) match {
+                case Some(s2) => {
+                  println("some " + s2)
+                  val result = join(s2, s1).andThen { u1 =>
+                    State.some(suf + (f -> u1))
+                  }
+                  
+                  println("result: " + result)
+                  ???
+                }
+                case None => println("none"); suf
+              }
+            }
+            
+//            sufs.andThen(x => {
+//              tfs.get(f) match {
+//                case Some(s2) => {
+//                  for (u1 <- join(s2, s1)) yield sufs.apply(bb)
+//                }
+//                case None => State.none
+//              }
+//            })
+//          }
+
+//            tfs.get(f) match {
+//              case Some(s2) => {
+//                println("some " + s2)
+//                val v1 = join(s1, s2).andThen { u1 => 
+//                  println("map " + f + " -> " + u1)
+//                  State.some((f -> u1))
+//                }
+//              }
+//              case None => println("state.none"); State.none
+//            }
         }
+        
         for { ufs <- sufs } yield TObj(ufs)
       case (s, t) =>
         if (s == t) State.some(s) else State.none
