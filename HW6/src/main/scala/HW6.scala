@@ -395,7 +395,7 @@ object HW6 extends js.util.JsApp {
     def stepFirst(l: List[Expr]): State[Mem, List[Expr]] = l match {
       case Nil => State.insert(Nil)
       case e :: es if !isValue(e) => 
-       for (ep <- step(e)) yield (List(e, ep))
+       for (ep <- step(e)) yield (List(ep))
       case e :: es =>
         stepFirst(es)
     }
@@ -528,7 +528,7 @@ object HW6 extends js.util.JsApp {
 
       //SearchCall2 
       case Call(v1, args) if (isValue(v1)) =>
-        println("in searchCall2: " + args)
+        println("in searchCall2")
         for (argp <- stepFirst(args)) yield Call(v1, argp)
         
       // SearchCall1
