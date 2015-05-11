@@ -88,7 +88,7 @@ class HW6Spec extends FlatSpec {
     val e1 = If(Var("b"), Num(6), Num(0));
     val func = Function(None, xs, None,  e1);
     val obj = Obj(Map("o" -> func))
-    val params = List(Bool(true), obj)
+    val params = List(Bool(true))
     val call = Call(GetField(obj, "o"), params)
     
     assert(Num(6) == iterateStep(call))
