@@ -395,9 +395,9 @@ object HW6 extends js.util.JsApp {
     def stepFirst(l: List[Expr]): State[Mem, List[Expr]] = l match {
       case Nil => State.insert(Nil)
       case e :: es if !isValue(e) => 
-       for (ep <- step(e)) yield (List(ep))
+       for (ep <- step(e)) yield (ep :: es)
       case e :: es =>
-        stepFirst(es)
+        for (esp <- stepFirst(es)) yield e :: esp
     }
     
     /*** Body ***/
@@ -447,7 +447,7 @@ object HW6 extends js.util.JsApp {
             val e1p = (txs, es).zipped.foldRight(e1){
               //substitute each parameter into the expression
               (param, en) => println("param: " + param + "\nen: " + en); param match {
-                case ((str, _), ei) => println("in substitution"); substitute(en, str, ei)
+                case ((str, _), ei) => println("in substitution\n substituting in: " + en +  "\nreplacing: " + str + "\n with: " + ei); substitute(en, str, ei)
               }
             }
             println("e1p: " + e1p)
