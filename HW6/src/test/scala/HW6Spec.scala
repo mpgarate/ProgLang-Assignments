@@ -83,7 +83,7 @@ class HW6Spec extends FlatSpec {
     assert(Num(6) == iterateStep(call))
   } 
   
-  "SearchCall1" should "should search through e1" in {
+  "SearchCall1" should "search through e1" in {
     val xs = List(("b", TBool));
     val e1 = If(Var("b"), Num(6), Num(0));
     val func = Function(None, xs, None,  e1);
@@ -92,6 +92,32 @@ class HW6Spec extends FlatSpec {
     val call = Call(GetField(obj, "o"), params)
     
     assert(Num(6) == iterateStep(call))
+  }
+  
+  "Hungry" should "call itself" in {
+    val exp = Decl ( 
+      MConst, 
+      "yum", 
+      Function (
+        Some ("yum"),
+        List ("x" -> TNumber),
+        Some (
+          TInterface (
+            "Hungry",
+            TFunction (List ("x" -> TNumber), TVar ("Hungry")))),
+      Var ("yum")),
+      Call (
+        Call (Call (Var ("yum"), List (Num (0.0))), List (Num (1.0))),
+        List (Num (2.0))));
+    val ans =  Function (
+      Some ("yum"),
+      List ("x" -> TNumber),
+      Some (
+        TInterface (
+          "Hungry",
+          TFunction (List ("x" -> TNumber), TVar ("Hungry")))),
+      Var ("yum")) 
+    assert(ans == iterateStep(exp))
   }
   
   // You probably want to write some tests for typeInfer and step.
