@@ -265,8 +265,11 @@ object HW6 extends js.util.JsApp {
       }
       // TypeEqual
       case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
-        case t1 if !hasFunctionTyp(t1) => ???
-//          val tgot = typ(e2)
+        case t1 if !hasFunctionTyp(t1) => 
+//          join(t1, typ(e2)).andThen { x => State.some(x) } 
+//          join(t1, typ(e2)).andThen { typ => State.some(Map(f -> typ))}.orElse(State.none)
+           
+          val tgot = typ(e2)
 //          
 //          println("t1: " + t1)
 //          println("tgot: " + tgot)
@@ -274,10 +277,10 @@ object HW6 extends js.util.JsApp {
 //          join(t1, tgot).andThen { x => println("got here #3"); State.some(x) }
 //          join(t1, tgot).map { x: Typ => println("got here #4"); x}
 //            
-//          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
-//            println("got here #1")
-//            return TBool
-//          }
+          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
+            println("got here #1")
+            return x
+          }
 //          
 //          println("got here #2")
 //          err(tgot, e1)
@@ -357,8 +360,11 @@ object HW6 extends js.util.JsApp {
         
 //
 //      // TypeCast
-//      case UnOp(Cast(t), e1) =>
-//        ???
+      case UnOp(Cast(t), e1) =>
+        val tgot = typ(e1)
+        if (t<:<(tgot) || t>:>(tgot)) t
+        else err(tgot, e1)
+        
         
       /* Should not match: non-source expressions or should have been eliminated */
       case Addr(_) | UnOp(Deref, _) | InterfaceDecl(_, _, _) => throw new IllegalArgumentException("Gremlins: Encountered unexpected expression %s.".format(e))
