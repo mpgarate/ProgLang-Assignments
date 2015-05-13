@@ -125,54 +125,26 @@ object HW6 extends js.util.JsApp {
         for { u1 <- join(s.unfold, t) } yield TInterface(svar)(u1)
       // JoinFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
-        
-        for{ s <- join(sret, tret) } yield { TFunction(sxs, s) }
-        //join of return type
-        //meet of parameters
-        
+        // join of the return type
+        // meet of the parameters
+        ???
+
       // JoinObj
       case (TObj(sfs), TObj(tfs)) =>
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
-          case (sufs, (f, s1)) => 
-            for (suf <- sufs) yield {
-              println("sufs: " + sufs + "\nf: " + f + "\ns1: " + s1 + "\ntfs: " + tfs);
-              tfs.get(f) match {
-                case Some(s2) => {
-                  println("some " + s2)
-                  val result = join(s2, s1).andThen { u1 =>
-                    State.some(suf + (f -> u1))
-                  }
-                  
-                  println("result: " + result)
-                  ???
-                }
-                case None => println("none"); suf
+          case (sufs, (f, s1)) => {
+            tfs.get(f) match {
+              case Some(s2) => {
+                join(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
               }
+              case None => sufs
             }
-            
-//            sufs.andThen(x => {
-//              tfs.get(f) match {
-//                case Some(s2) => {
-//                  for (u1 <- join(s2, s1)) yield sufs.apply(bb)
-//                }
-//                case None => State.none
-//              }
-//            })
-//          }
-
-//            tfs.get(f) match {
-//              case Some(s2) => {
-//                println("some " + s2)
-//                val v1 = join(s1, s2).andThen { u1 => 
-//                  println("map " + f + " -> " + u1)
-//                  State.some((f -> u1))
-//                }
-//              }
-//              case None => println("state.none"); State.none
-//            }
+          }
         }
         
-        for { ufs <- sufs } yield {println(ufs); TObj(ufs)}
+        for { ufs <- sufs } yield {
+          TObj(ufs)
+        }
       case (s, t) =>
         if (s == t) State.some(s) else State.none
     }
@@ -293,9 +265,22 @@ object HW6 extends js.util.JsApp {
       }
       // TypeEqual
       case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
-        case t1 if !hasFunctionTyp(t1) => 
-          ???
-        case tgot => err(tgot, e1)
+        case t1 if !hasFunctionTyp(t1) => ???
+//          val tgot = typ(e2)
+//          
+//          println("t1: " + t1)
+//          println("tgot: " + tgot)
+//          
+//          join(t1, tgot).andThen { x => println("got here #3"); State.some(x) }
+//          join(t1, tgot).map { x: Typ => println("got here #4"); x}
+//            
+//          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
+//            println("got here #1")
+//            return TBool
+//          }
+//          
+//          println("got here #2")
+//          err(tgot, e1)
       }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) => typ(e1) match {
         case TUnfold(TNumber) => typ(e2) match {
