@@ -64,6 +64,34 @@ class HW6Spec extends FlatSpec {
     assert(TNull =:= (t2 &:& s2).get)
   }
   
+  "Join Function" should "join the functions" in {
+    val fn1xs = List(("a", TNumber), ("c", TString))
+    val fn1t = TObj(Map("x" -> TNumber))
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TString))
+    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
+    val ans = TFunction(List(("a", TNumber), ("c", TString)), TObj(Map("x" -> TNumber)))
+    
+    assert( ans =:=  (tfn2 |:| tfn1).get)
+  }
+  
+  "Meet Function" should "meet the functions" in {
+    val fn1xs = List(("a", TNumber), ("c", TString))
+    val fn1t = TObj(Map("x" -> TNumber))
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TString))
+    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
+    val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
+    
+    assert( ans =:=  (tfn2 &:& tfn1).get)
+  }
+  
   "typeEqual" should "compute join of two expressions" in {
     val e2 = BinOp(Plus, Num(3), Num(2))
     val e1 = BinOp(Plus, Num(7), Num(99))
@@ -127,33 +155,25 @@ class HW6Spec extends FlatSpec {
       Var ("yum")) 
     assert(ans == iterateStep(exp))
   }
-  
-  "Join Function" should "join the functions" in {
-    val fn1xs = List(("a", TNumber), ("c", TString))
-    val fn1t = TObj(Map("x" -> TNumber))
-    val tfn1 = TFunction(fn1xs, fn1t)
-    
-    val fn2xs = List(("a", TNumber), ("b", TString))
-    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
-    val tfn2 = TFunction(fn2xs, fn2t)
-    
-    val ans = TFunction(List(("a", TNumber), ("b", TString),("c", TString)), TObj(Map("x" -> TNumber)))
-    
-    assert( ans =:=  (tfn2 |:| tfn1).get)
-  }
-  "Meet Function" should "meet the functions" in {
-    val fn1xs = List(("a", TNumber), ("c", TString))
-    val fn1t = TObj(Map("x" -> TNumber))
-    val tfn1 = TFunction(fn1xs, fn1t)
-    
-    val fn2xs = List(("a", TNumber), ("b", TString))
-    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
-    val tfn2 = TFunction(fn2xs, fn2t)
-    
-    val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
-    
-    assert( ans =:=  (tfn2 &:& tfn1).get)
+
+  "Infer Subtype Function" should "" in {
+    val exp = Decl ( 
+      MConst, 
+      "yum", 
+      Function (
+        Some ("yum"),
+        List ("x" -> TNumber),
+        Some (
+          TInterface (
+            "Hungry",
+            TFunction (List ("x" -> TNumber), TVar ("Hungry")))),
+      Var ("yum")),
+      Call (
+        Call (Call (Var ("yum"), List (Num (0.0))), List (Num (1.0))),
+        List (Num (2.0))));
   }
   
   // You probably want to write some tests for typeInfer and step.
+  
+  
 }

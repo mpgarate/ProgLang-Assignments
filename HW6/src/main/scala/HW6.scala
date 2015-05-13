@@ -307,6 +307,7 @@ object HW6 extends js.util.JsApp {
       case BinOp(Seq, e1, e2) => typ(e1); typ(e2)
       case If(e1, e2, e3) => typ(e1) match {
         case TUnfold(TBool) =>
+          join(typ(e1), typ(e2))
           ???
         case tgot => err(tgot, e1)
       }
@@ -333,7 +334,10 @@ object HW6 extends js.util.JsApp {
         // Infer the type of the function body
         val t1 = typeInfer(env2, e1)
         // Need both TypeFunAnn and TypeFunRec
-        ???
+        tann match {
+          case Some(x) => if (t1 <:< x) TFunction(xs, x) else err(x, e1)
+          case None => TFunction(xs, t1) //what does it return when there's no specified return type?
+        }
       }
       
       case Call(e1, args) => typ(e1) match {
