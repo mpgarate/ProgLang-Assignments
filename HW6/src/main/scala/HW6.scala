@@ -354,7 +354,10 @@ object HW6 extends js.util.JsApp {
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
-        ???
+        if(t1<:<t2) t2
+        else err(t2, e2)
+        //t1 subtype of t2
+
       
       /*** Fill-in more cases here. ***/
         
