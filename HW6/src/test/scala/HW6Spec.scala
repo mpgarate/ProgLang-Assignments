@@ -137,9 +137,11 @@ class HW6Spec extends FlatSpec {
     val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
     val tfn2 = TFunction(fn2xs, fn2t)
     
-    val ans = TFunction(List(("a", TNumber), ("b", TString),("c", TString)), TObj(Map("x" -> TNumber)))
+    val ans = TFunction(List(("a", TNumber), ("c", TString)), TObj(Map("x" -> TNumber)))
     
-    assert( ans =:=  (tfn2 |:| tfn1).get)
+    val result = tfn1 |:| tfn2
+    println("result: " + result.get)
+    assert(ans =:= result.get)
   }
   "Meet Function" should "meet the functions" in {
     val fn1xs = List(("a", TNumber), ("c", TString))

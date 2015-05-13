@@ -55,11 +55,11 @@ object HW6 extends js.util.JsApp {
   /** subtypeBasic implements the actual subtype relation. 
    *  All recursive calls inside subtypeBasic must go to the function subtype.
    */
-  def subtypeBasic(s: Typ, t: Typ): StateBoolean[Set[(Typ, Typ)]] = 
+  def subtypeBasic(s: Typ, t: Typ): StateBoolean[Set[(Typ, Typ)]] = {
     (s, t) match {
       // SubFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) =>
-        if (sxs.length <= txs.length || subtype(sret, tret) == State.falseS){
+        if (sxs.length < txs.length || subtype(sret, tret) == State.falseS){
           State.falseS
         } else {
           ((sxs, txs).zipped foldLeft State.trueS[Set[(Typ, Typ)]]){
@@ -82,6 +82,7 @@ object HW6 extends js.util.JsApp {
         subtype(s.unfold, t)
       case (s, t) => State.bool(s == t)
     }
+  }
 
   /** Joins and meets need to be computed simultaneously.
    *  We use a cache that stores the trail of joins and meets for
@@ -115,7 +116,6 @@ object HW6 extends js.util.JsApp {
     checkCache(Join, s, t) orElse joinBasic(s, t)
      
   def joinBasic(s: Typ, t: Typ): StateOption[Cache, Typ] = {
-    println("join " + s + " and " + t)
     (s, t) match {
       case (TNull, TObj(_)) => State.some(t)
       case (TObj(_), TNull) => State.some(s)
@@ -127,7 +127,20 @@ object HW6 extends js.util.JsApp {
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
         // join of the return type
         // meet of the parameters
-        ???
+
+        val sufs = ((sxs, txs).zipped foldLeft State.some[Cache, Params](List.empty)) {
+          case (sufs, ((sx, sxt), (tx, txt))) => {
+            sufs.andThen { params => 
+              meet(sxt, txt).andThen { typ => 
+                State.some(params ++ List[(String, Typ)]((sx, typ)))
+              }
+            }
+          }
+        }
+        
+        for { ufs <- sufs; ret <- join(sret, tret)} yield {
+          TFunction(ufs, ret)
+        }
 
       // JoinObj
       case (TObj(sfs), TObj(tfs)) =>
