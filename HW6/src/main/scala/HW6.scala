@@ -345,8 +345,10 @@ object HW6 extends js.util.JsApp {
       case BinOp(Seq, e1, e2) => typ(e1); typ(e2)
       case If(e1, e2, e3) => typ(e1) match {
         case TUnfold(TBool) =>
-          join(typ(e1), typ(e2))
-          ???
+          val t1 = typ(e1)
+          val t2 = typ(e2)
+//        No clue how to make this work...
+          for (tgot <- join(t1, t2)) yield(tgot)
         case tgot => err(tgot, e1)
       }
       case Obj(fs) => TObj(fs map { case (f,t) => (f, typ(t)) })
