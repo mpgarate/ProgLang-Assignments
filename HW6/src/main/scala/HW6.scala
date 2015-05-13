@@ -269,7 +269,7 @@ object HW6 extends js.util.JsApp {
 //          join(t1, typ(e2)).andThen { x => State.some(x) } 
 //          join(t1, typ(e2)).andThen { typ => State.some(Map(f -> typ))}.orElse(State.none)
            
-          val tgot = typ(e2)
+//          val tgot = typ(e2)
 //          
 //          println("t1: " + t1)
 //          println("tgot: " + tgot)
@@ -277,13 +277,14 @@ object HW6 extends js.util.JsApp {
 //          join(t1, tgot).andThen { x => println("got here #3"); State.some(x) }
 //          join(t1, tgot).map { x: Typ => println("got here #4"); x}
 //            
-          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
-            println("got here #1")
-            return x
-          }
+//          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
+//            println("got here #1")
+//            return x
+//          }
 //          
 //          println("got here #2")
 //          err(tgot, e1)
+          ???
       }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) => typ(e1) match {
         case TUnfold(TNumber) => typ(e2) match {
@@ -350,7 +351,7 @@ object HW6 extends js.util.JsApp {
         val env1 = env + (x -> (mut, t1))
         typeInfer(env1, e2)
        
-      // TypeAssign --- need both TypeAssignVar and TypeAssignFld
+      // TypeAssign --- both TypeAssignVar and TypeAssignFld:
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
