@@ -120,5 +120,19 @@ class HW6Spec extends FlatSpec {
     assert(ans == iterateStep(exp))
   }
   
+  "Join Function" should "join the functions" in {
+    val fn1xs = List(("a", TNumber))
+    val fn1t = TObj(Map("x" -> TNumber))
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TString))
+    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
+    val ans = TFunction(List(("a", TNumber), ("b", TString)), TObj(Map("x" -> TNumber)))
+    
+    assert( ans =:=  (tfn2 |:| tfn1).get)
+  }
+  
   // You probably want to write some tests for typeInfer and step.
 }
