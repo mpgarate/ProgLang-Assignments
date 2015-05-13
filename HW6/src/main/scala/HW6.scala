@@ -180,12 +180,37 @@ object HW6 extends js.util.JsApp {
         for { u1 <- meet(s, t.unfold) } yield TInterface(tvar)(u1)
       case (s @ TInterface(svar, s1), _) =>
         for { u1 <- meet(s.unfold, t) } yield TInterface(svar)(u1)
-      // MeetFun
+      // MeetFun -- work in progress (might be done)
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
-        ???
-      // MeetObj
+        val sufs = ((sxs, txs).zipped foldLeft State.some[Cache, Params](List.empty)) {
+          case (sufs, ((sx, sxt), (tx, txt))) => {
+            sufs.andThen { params => 
+              join(sxt, txt).andThen { typ => 
+                State.some(params ++ List[(String, Typ)]((sx, typ)))
+              }
+            }
+          }
+        }
+        
+        for { ufs <- sufs; ret <- meet(sret, tret)} yield {
+          TFunction(ufs, ret)
+        }
+      // MeetObj -- work in progress (probably incomplete)
       case (TObj(sfs), TObj(tfs)) =>
-        ???
+        val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
+          case (sufs, (f, s1)) => {
+            tfs.get(f) match {
+              case Some(s2) => {
+                meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+              }
+              case None => sufs
+            }
+          }
+        }
+        
+        for { ufs <- sufs } yield {
+          TObj(ufs)
+        }
       case (s, t) =>
         if (s == t) State.some(s) else State.none
     }
