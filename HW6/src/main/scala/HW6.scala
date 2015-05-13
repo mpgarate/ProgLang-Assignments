@@ -125,13 +125,17 @@ object HW6 extends js.util.JsApp {
         for { u1 <- join(s.unfold, t) } yield TInterface(svar)(u1)
       // JoinFun
       case (TFunction(sxs, sret), TFunction(txs, tret)) if sxs.length == txs.length =>
-        ???
+        
+        for{ s <- join(sret, tret) } yield { TFunction(sxs, s) }
+        //join of return type
+        //meet of parameters
         
       // JoinObj
       case (TObj(sfs), TObj(tfs)) =>
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => 
             for (suf <- sufs) yield {
+              println("sufs: " + sufs + "\nf: " + f + "\ns1: " + s1 + "\ntfs: " + tfs);
               tfs.get(f) match {
                 case Some(s2) => {
                   println("some " + s2)
@@ -168,7 +172,7 @@ object HW6 extends js.util.JsApp {
 //            }
         }
         
-        for { ufs <- sufs } yield TObj(ufs)
+        for { ufs <- sufs } yield {println(ufs); TObj(ufs)}
       case (s, t) =>
         if (s == t) State.some(s) else State.none
     }
@@ -640,14 +644,14 @@ object HW6 extends js.util.JsApp {
     val expr = handle(fail()) {
       parse.fromFile(file)
     }
-      
+    
     if (debug) {
       println("Parsed expression:")
       println(expr.prettyJS())
     }
       
     val exprRem = removeInterfaceDecl(expr)
-    
+    println(exprRem);
     handle(fail()) {
       val t = inferType(exprRem)
     }
