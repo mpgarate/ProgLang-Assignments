@@ -64,6 +64,14 @@ class HW6Spec extends FlatSpec {
     assert(TNull =:= (t2 &:& s2).get)
   }
   
+  "typeEqual" should "compute join of two expressions" in {
+    val e2 = BinOp(Plus, Num(3), Num(2))
+    val e1 = BinOp(Plus, Num(7), Num(99))
+    val e = BinOp(Eq, e1, e2)
+    
+    assert(inferType(e) == TBool)
+  }
+  
   "Do function test" should "successfully run a function" in {
     val xs = List(("x", TNumber), ("b", TBool));
     val e1 = If(Var("b"), Bool(true), Bool(false));
