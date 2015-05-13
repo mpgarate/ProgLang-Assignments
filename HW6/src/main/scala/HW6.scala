@@ -339,7 +339,13 @@ object HW6 extends js.util.JsApp {
       case Call(e1, args) => typ(e1) match {
         case TUnfold(TFunction(xs, tret)) if (xs.length == args.length) => {
           (xs, args).zipped.foreach {
-            ???
+            (param, arg) => param match {
+//             t <:< s => t is subtype of s
+                case (_, ta) => {
+                  val tgot = typ(arg); 
+                  if (tgot <:< ta) tgot else err(tgot, arg)
+                }
+              }
           }
           tret
         }
