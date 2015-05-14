@@ -113,9 +113,13 @@ object HW6 extends js.util.JsApp {
    * implementation of the join operator is in joinBasic. 
    */
   def join(s: Typ, t: Typ): StateOption[Cache, Typ] = 
-    checkCache(Join, s, t) orElse joinBasic(s, t)
+     checkCache(Join, s, t) orElse joinBasic(s, t)
      
   def joinBasic(s: Typ, t: Typ): StateOption[Cache, Typ] = {
+    println("computing join for:")
+    println("s: " + s)
+    println("s: " + s)
+    println("t: " + t)
     (s, t) match {
       case (TNull, TObj(_)) => State.some(t)
       case (TObj(_), TNull) => State.some(s)
@@ -197,6 +201,27 @@ object HW6 extends js.util.JsApp {
         }
       // MeetObj -- work in progress (probably incomplete)
       case (TObj(sfs), TObj(tfs)) =>
+        // MeetObjNull
+        // this should check the join for any fields of the same name.
+        // if the join is empty, then this case must return TNull. 
+        // Otherwise, evaluate the MeetObj rule below. 
+        val fields = sfs.map({ case (x, t1) => 
+          tfs.get(x) match {
+            case Some(t2) => {
+              println("t1: " + t1)
+              println("t2: " + t2)
+
+              // I can't figure out why none of these print statements are reached. 
+              join(t2, t1).orElse({println("got here 1"); State.none})
+              join(t2, t1).andThen { x => println("got here 2"); State.none }
+              join(t2, t1).getOrElse({ println("got here 3"); State.none })
+              join(t2, t1).map { typ: Typ => println("got here 4"); State.none }
+            }
+            case None => (x -> t1)
+          }
+        })
+        
+        // MeetObj
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => {
             tfs.get(f) match {

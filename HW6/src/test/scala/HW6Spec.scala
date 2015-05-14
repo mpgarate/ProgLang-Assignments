@@ -61,6 +61,7 @@ class HW6Spec extends FlatSpec {
     
     val t2 = TObj(Map("x" -> TNumber, "y" -> TBool))
     val s2 = TObj(Map("x" -> TNumber, "y" -> TNumber))
+    println("meet: " + (t2 &:& s2).get)
     assert(TNull =:= (t2 &:& s2).get)
   }
   
