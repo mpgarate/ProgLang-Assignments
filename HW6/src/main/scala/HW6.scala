@@ -208,8 +208,8 @@ object HW6 extends js.util.JsApp {
           }
         }
         
-        for { ufs <- sufs } yield {
-          TObj(ufs)
+        for { ufs <- (sufs) } yield {
+          TObj(ufs ++ sfs ++ tfs)
         }
       case (s, t) =>
         if (s == t) State.some(s) else State.none
