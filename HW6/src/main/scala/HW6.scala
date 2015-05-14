@@ -303,7 +303,11 @@ object HW6 extends js.util.JsApp {
       }
       // TypeEqual
       case BinOp(Eq|Ne, e1, e2) => typ(e1) match {
-        case t1 if !hasFunctionTyp(t1) => 
+        case t1 if (!hasFunctionTyp(t1) && !hasFunctionTyp(typ(e2))) => 
+          t1 |:| typ(e2) match {
+            case Some(t) => t
+            case None => err(t1, e1)
+          }
 //          join(t1, typ(e2)).andThen { x => State.some(x) } 
 //          join(t1, typ(e2)).andThen { typ => State.some(Map(f -> typ))}.orElse(State.none)
            
@@ -322,7 +326,7 @@ object HW6 extends js.util.JsApp {
 //          
 //          println("got here #2")
 //          err(tgot, e1)
-          ???
+          
       }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) => typ(e1) match {
         case TUnfold(TNumber) => typ(e2) match {
@@ -345,10 +349,12 @@ object HW6 extends js.util.JsApp {
       case BinOp(Seq, e1, e2) => typ(e1); typ(e2)
       case If(e1, e2, e3) => typ(e1) match {
         case TUnfold(TBool) =>
-          val t1 = typ(e1)
-          val t2 = typ(e2)
-//        No clue how to make this work...
-          for (tgot <- join(t1, t2)) yield(tgot)
+          typ(e2)|:|typ(e3)
+          match {
+            case Some(t) => t
+            //not sure what parameters should be passed to the error...
+            case None => err(TUndefined, e2)
+          }
         case tgot => err(tgot, e1)
       }
       case Obj(fs) => TObj(fs map { case (f,t) => (f, typ(t)) })
