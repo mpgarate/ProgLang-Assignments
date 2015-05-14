@@ -143,7 +143,7 @@ class HW6Spec extends FlatSpec {
       Call (
         Call (Call (Var ("yum"), List (Num (0.0))), List (Num (1.0))),
         List (Num (2.0))));
-
+  }
   "Join Function" should "join the functions" in {
     val fn1xs = List(("a", TNumber), ("c", TString))
     val fn1t = TObj(Map("x" -> TNumber))
