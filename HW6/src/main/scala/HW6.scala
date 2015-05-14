@@ -306,7 +306,7 @@ object HW6 extends js.util.JsApp {
         case t1 if (!hasFunctionTyp(t1) && !hasFunctionTyp(typ(e2))) => 
           t1 |:| typ(e2) match {
             case Some(t) => TBool
-            case None => println("oops, none"); err(t1, e1)
+            case None => err(t1, e1)
           }
 //          join(t1, typ(e2)).andThen { x => State.some(x) } 
 //          join(t1, typ(e2)).andThen { typ => State.some(Map(f -> typ))}.orElse(State.none)
