@@ -170,13 +170,10 @@ class HW6Spec extends FlatSpec {
     val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
     val tfn2 = TFunction(fn2xs, fn2t)
     
-    // val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
-    // ^^ We had this before, but I think it should be as written below.
-    
-    //Meet of the return types and join of the params
-    val ans = TFunction(List(("a", TNumber), ("b", TString)), TObj(Map("x" -> TNumber)))
+    val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
     
     val result = tfn2 &:& tfn1
+    println(result)
     assert(ans =:= result.get)
   }
   
