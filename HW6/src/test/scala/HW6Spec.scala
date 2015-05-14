@@ -168,11 +168,11 @@ class HW6Spec extends FlatSpec {
     val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
     val tfn2 = TFunction(fn2xs, fn2t)
     
-    // should "y" -> TBool really be in here? Would that be in the meet of the two objects?
-    val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
+    // val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
+    // ^^ We had this before, but I think it should be as written below.
+    val ans = TFunction(List(("a", TNumber), ("b", TString)), TObj(Map("x" -> TNumber)))
     
     val result = tfn2 &:& tfn1
-    println("result: " + result)
     assert(ans =:= result.get)
   }
   
