@@ -2,7 +2,7 @@ interface Item {
   iName: string;
   iDescription: string;
   iTime: number;
-  iAction: () => Item;
+  iAction: () => Undefined;
 };
 
 interface Node {
@@ -58,4 +58,5 @@ function newList(): List {
 
 const l = newList();
 l.add("Make Coffee", "Make the coffee for breakfast", 2, function(){ console.log("brewing coffee"); });
+l.add("Create to do list", "Create another to do list assignment", 3, function() { console.log("creating to do list");} );
 l.foreach(function(e: Item) { e.iAction; } );
