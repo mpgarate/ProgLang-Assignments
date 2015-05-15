@@ -158,7 +158,7 @@ class HW6Spec extends FlatSpec {
     val ans = TFunction(List(("a", TNumber), ("c", TString)), TObj(Map("x" -> TNumber)))
     
     val result = tfn1 |:| tfn2
-    assert(ans =:= result.get)
+    assert(ans == result.get)
   }
   
   "Meet Function" should "meet the functions, using fn1 var names in a conflict" in {
@@ -174,7 +174,7 @@ class HW6Spec extends FlatSpec {
     
     val result = tfn1 &:& tfn2
     println("result: " + result)
-    assert(ans =:= result.get)
+    assert(ans == result.get)
   }
   
   "Meet Function" should "meet the functions" in {
@@ -190,7 +190,7 @@ class HW6Spec extends FlatSpec {
     
     val result = tfn2 &:& tfn1
     println("result: " + result)
-    assert(ans =:= result.get)
+    assert(ans == result.get)
   }
   
   "Meet Function" should "take the join of the function parameter" in {
@@ -200,7 +200,7 @@ class HW6Spec extends FlatSpec {
     
     val result = f1 &:& f2
     println(result)
-    assert(ans =:= result.get)
+    assert(ans == result.get)
   }
   
   "Join Obj" should "join two function objects" in {

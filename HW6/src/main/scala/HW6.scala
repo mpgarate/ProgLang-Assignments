@@ -148,7 +148,12 @@ object HW6 extends js.util.JsApp {
           case (sufs, (f, s1)) => {
             tfs.get(f) match {
               case Some(s2) => {
-                join(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+                for (suf <- sufs) yield {
+                  s1 |:| s2 match {
+                    case Some(typ) => suf + (f -> typ)
+                    case None => suf
+                  }
+                }
               }
               case None => sufs
             }
