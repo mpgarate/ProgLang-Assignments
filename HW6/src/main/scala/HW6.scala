@@ -211,6 +211,7 @@ object HW6 extends js.util.JsApp {
           case (sufs, (f, s1)) => {
             tfs.get(f) match {
               case Some(s2) => {
+                //how come we're doing a join below?
                 s1 |:| s2 match {
                   // MeetObj
                   case Some(_) => meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
