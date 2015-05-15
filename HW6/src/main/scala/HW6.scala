@@ -211,7 +211,11 @@ object HW6 extends js.util.JsApp {
               println("t1: " + t1)
               println("t2: " + t2)
 
-              // I can't figure out why none of these print statements are reached. 
+              // I can't figure out why none of these print statements are reached.
+              t2|:|t1 match {
+                case Some(t) => println("woohoo in here!"); (x -> t)
+                case None => println("wtf there is none -.- "); err(t2, tfs)
+              }
               join(t2, t1).orElse({println("got here 1"); State.none})
               join(t2, t1).andThen { x => println("got here 2"); State.none }
               join(t2, t1).getOrElse({ println("got here 3"); State.none })
