@@ -116,10 +116,6 @@ object HW6 extends js.util.JsApp {
      checkCache(Join, s, t) orElse joinBasic(s, t)
      
   def joinBasic(s: Typ, t: Typ): StateOption[Cache, Typ] = {
-    println("computing join for:")
-    println("s: " + s)
-    println("s: " + s)
-    println("t: " + t)
     (s, t) match {
       case (TNull, TObj(_)) => State.some(t)
       case (TObj(_), TNull) => State.some(s)
@@ -189,15 +185,19 @@ object HW6 extends js.util.JsApp {
         val sufs = ((sxs, txs).zipped foldLeft State.some[Cache, Params](List.empty)) {
           case (sufs, ((sx, sxt), (tx, txt))) => {
             sufs.andThen { params => 
-              join(sxt, txt).andThen { typ => 
-                State.some(params ++ List[(String, Typ)]((sx, typ)))
+              sxt |:| txt match {
+                case Some(typ) => State.some(params ++ List[(String, Typ)]((sx, typ)))
+                case None => State.some(params)
               }
             }
           }
         }
         
-        for { ufs <- sufs; ret <- meet(sret, tret)} yield {
-          TFunction(ufs, ret)
+        for { ufs <- sufs } yield {
+          (sret &:& tret) match {
+            case Some(ret) => TFunction(ufs, ret)
+            case None => ???
+          }
         }
       // MeetObj and MeetObjNull
       case (TObj(sfs), TObj(tfs)) =>
