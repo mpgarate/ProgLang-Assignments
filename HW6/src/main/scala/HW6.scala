@@ -116,10 +116,6 @@ object HW6 extends js.util.JsApp {
      checkCache(Join, s, t) orElse joinBasic(s, t)
      
   def joinBasic(s: Typ, t: Typ): StateOption[Cache, Typ] = {
-    println("computing join for:")
-    println("s: " + s)
-    println("s: " + s)
-    println("t: " + t)
     (s, t) match {
       case (TNull, TObj(_)) => State.some(t)
       case (TObj(_), TNull) => State.some(s)
@@ -189,40 +185,33 @@ object HW6 extends js.util.JsApp {
         val sufs = ((sxs, txs).zipped foldLeft State.some[Cache, Params](List.empty)) {
           case (sufs, ((sx, sxt), (tx, txt))) => {
             sufs.andThen { params => 
-              join(sxt, txt).andThen { typ => 
-                State.some(params ++ List[(String, Typ)]((sx, typ)))
+              sxt |:| txt match {
+                case Some(typ) => State.some(params ++ List[(String, Typ)]((sx, typ)))
+                case None => State.some(params)
               }
             }
           }
         }
         
-        for { ufs <- sufs; ret <- meet(sret, tret)} yield {
-          TFunction(ufs, ret)
+        for { ufs <- sufs } yield {
+          (sret &:& tret) match {
+            case Some(ret) => TFunction(ufs, ret)
+            case None => ???
+          }
         }
-      // MeetObj -- work in progress (probably incomplete)
+      // MeetObj and MeetObjNull
       case (TObj(sfs), TObj(tfs)) =>
-        // MeetObjNull
-        for ((x, t1) <- sfs) yield {
-          tfs.get(x) match {
-            case Some(t2) => {
-              t1 |:| t2 match {
-                // do nothing for found join
-                case Some(_) => 
-                // return TNull immediately when no join found
-                case None => return State.some(TNull)
-              }
-            }
-            // do nothing for unique fieldnames
-            case None => 
-          }
-        }
-        
         // MeetObj
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => {
             tfs.get(f) match {
               case Some(s2) => {
-                meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+                s1 |:| s2 match {
+                  // MeetObj
+                  case Some(_) => meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+                  // MeetObjNull
+                  case None => return State.some(TNull)
+                }
               }
               case None => sufs
             }

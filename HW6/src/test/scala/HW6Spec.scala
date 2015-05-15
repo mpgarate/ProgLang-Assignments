@@ -161,7 +161,7 @@ class HW6Spec extends FlatSpec {
     assert(ans =:= result.get)
   }
   
-  "Meet Function" should "meet the functions" in {
+  "Meet Function" should "meet the functions, using fn1 var names in a conflict" in {
     val fn1xs = List(("a", TNumber), ("c", TString))
     val fn1t = TObj(Map("x" -> TNumber))
     val tfn1 = TFunction(fn1xs, fn1t)
@@ -170,10 +170,26 @@ class HW6Spec extends FlatSpec {
     val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
     val tfn2 = TFunction(fn2xs, fn2t)
     
+    val ans = TFunction(List(("a", TNumber), ("c", TString)), TObj(Map("x" -> TNumber, "y" -> TBool)))
+    
+    val result = tfn1 &:& tfn2
+    println("result: " + result)
+    assert(ans =:= result.get)
+  }
+  
+  "Meet Function" should "meet the functions" in {
+    val fn1xs = List(("a", TNumber), ("c", TString))
+    val fn1t = TObj(Map("x" -> TNumber))
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TNumber))
+    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
     val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
     
     val result = tfn2 &:& tfn1
-    println(result)
+    println("result: " + result)
     assert(ans =:= result.get)
   }
   
