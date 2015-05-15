@@ -196,7 +196,7 @@ object HW6 extends js.util.JsApp {
         for { ufs <- sufs } yield {
           (sret &:& tret) match {
             case Some(ret) => TFunction(ufs, ret)
-            case None => ???
+            case None => TNull
           }
         }
       // MeetObj and MeetObjNull
@@ -318,25 +318,6 @@ object HW6 extends js.util.JsApp {
             case Some(t) => TBool
             case None => err(t1, e1)
           }
-//          join(t1, typ(e2)).andThen { x => State.some(x) } 
-//          join(t1, typ(e2)).andThen { typ => State.some(Map(f -> typ))}.orElse(State.none)
-           
-//          val tgot = typ(e2)
-//          
-//          println("t1: " + t1)
-//          println("tgot: " + tgot)
-//          
-//          join(t1, tgot).andThen { x => println("got here #3"); State.some(x) }
-//          join(t1, tgot).map { x: Typ => println("got here #4"); x}
-//            
-//          for (x <- join(t1, tgot).getOrElse(err(tgot, e2))) yield {
-//            println("got here #1")
-//            return x
-//          }
-//          
-//          println("got here #2")
-//          err(tgot, e1)
-          
       }
       case BinOp(Lt|Le|Gt|Ge, e1, e2) => typ(e1) match {
         case TUnfold(TNumber) => typ(e2) match {
