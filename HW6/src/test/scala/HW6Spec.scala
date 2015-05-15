@@ -203,16 +203,37 @@ class HW6Spec extends FlatSpec {
     assert(ans =:= result.get)
   }
   
-  "Meet Function" should "take the join of the function parameter" in {
-    val f1 = TFunction(List(( "a", TFunction(List(( "a", TObj(Map("x"-> TNumber)) )),TString ))), TNumber)
-    val f2 = TFunction(List(( "b", TFunction(List(( "c", TObj(Map("x"-> TNumber, "y"->TNumber)) )),TString ))), TNumber)
-    val ans = TFunction(List(( "a", TFunction(List(( "a", TObj(Map("x"-> TNumber, "y"->TNumber)) )),TString ))), TNumber)
-    
-    val result = f1 &:& f2
-    println(result)
-    assert(ans =:= result.get)
+  "Join Obj" should "join two function objects" in {
+    val expr = Decl(MConst, "f",
+      If(
+        Bool(true),
+        Function(
+          None,
+          Nil,
+          Some(
+            TObj(
+              Map(
+                "x" -> TNumber,
+                "y" -> TObj(Map("w" -> TBool)),
+                "z" -> TNumber))),
+          Null),
+        Function(
+          None,
+          Nil,
+          Some(
+            TObj(
+              Map("x" -> TNumber, "y" -> TObj(Map("w" -> TNumber))))),
+          Null)),
+      Var("f"))
+      
+      val expected = TFunction (Nil, TObj (Map ("x" -> TNumber, "y" -> TObj (Map ()))))
+      
+      val result = typeInfer(Map.empty, expr)
+      
+      println("result: " + result)
+      
+      assert(expected == result)
   }
-  
   // You probably want to write some tests for typeInfer and step.
   // maybe?  ¯\_(ツ)_/¯
   
