@@ -695,7 +695,6 @@ object HW6 extends js.util.JsApp {
     }
       
     val exprRem = removeInterfaceDecl(expr)
-    println(exprRem);
     handle(fail()) {
       val t = inferType(exprRem)
     }
