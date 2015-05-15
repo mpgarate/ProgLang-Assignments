@@ -237,5 +237,23 @@ class HW6Spec extends FlatSpec {
   // You probably want to write some tests for typeInfer and step.
   // maybe?  ¯\_(ツ)_/¯
   
+  "assign" should "handle doassign.js case" in {
+    val expr = Decl(
+      MVar,
+      "o",
+      Obj(Map("z" -> Obj(Map("x" -> Num(0.0))))),
+      BinOp(
+        Seq,
+        BinOp(
+          Assign,
+          GetField(Var("o"), "z"),
+          Obj(Map("x" -> Num(1.0), "y" -> Num(2.0)))),
+        GetField(GetField(Var("o"), "z"), "x")))
+        
+    val result = typeInfer(Map.empty, expr)
+    
+    println(result)
+  }
+  
   
 }
