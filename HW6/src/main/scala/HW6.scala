@@ -408,7 +408,8 @@ object HW6 extends js.util.JsApp {
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
-        if(t1<:<t2) t2
+        println("t1: " + t1 + " t2: " + t2)
+        if(t2<:<t1) t2
         else err(t2, e2)
         //t1 subtype of t2
 
@@ -419,7 +420,7 @@ object HW6 extends js.util.JsApp {
 //      // TypeCast
       case UnOp(Cast(t), e1) =>
         val tgot = typ(e1)
-        if (t<:<(tgot) || t>:>(tgot)) t
+        if (t<:<(tgot) || tgot<:<(t)) t
         else err(tgot, e1)
         
         
