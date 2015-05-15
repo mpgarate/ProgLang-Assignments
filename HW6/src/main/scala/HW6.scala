@@ -533,8 +533,8 @@ object HW6 extends js.util.JsApp {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
               //substitute each parameter into the expression
-              (param, en) => println("param: " + param + "\nen: " + en); param match {
-                case ((str, _), ei) => println("in substitution\n substituting in: " + en +  "\nreplacing: " + str + "\n with: " + ei); substitute(en, str, ei)
+              (param, en) => param match {
+                case ((str, _), ei) => substitute(en, str, ei)
               }
             }
             p match {
@@ -614,7 +614,6 @@ object HW6 extends js.util.JsApp {
 
       //SearchCall2 
       case Call(v1, args) if (isValue(v1)) =>
-        println("in searchCall2")
         for (argp <- stepFirst(args)) yield Call(v1, argp)
         
       // SearchCall1
