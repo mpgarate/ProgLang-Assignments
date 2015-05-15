@@ -199,30 +199,19 @@ object HW6 extends js.util.JsApp {
         for { ufs <- sufs; ret <- meet(sret, tret)} yield {
           TFunction(ufs, ret)
         }
-      // MeetObj -- work in progress (probably incomplete)
+      // MeetObj and MeetObjNull
       case (TObj(sfs), TObj(tfs)) =>
-        // MeetObjNull
-        for ((x, t1) <- sfs) yield {
-          tfs.get(x) match {
-            case Some(t2) => {
-              t1 |:| t2 match {
-                // do nothing for found join
-                case Some(_) => 
-                // return TNull immediately when no join found
-                case None => return State.some(TNull)
-              }
-            }
-            // do nothing for unique fieldnames
-            case None => 
-          }
-        }
-        
         // MeetObj
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
           case (sufs, (f, s1)) => {
             tfs.get(f) match {
               case Some(s2) => {
-                meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+                s1 |:| s2 match {
+                  // MeetObj
+                  case Some(_) => meet(s1, s2).andThen { typ => State.some(Map(f -> typ))}.orElse(sufs)
+                  // MeetObjNull
+                  case None => return State.some(TNull)
+                }
               }
               case None => sufs
             }
