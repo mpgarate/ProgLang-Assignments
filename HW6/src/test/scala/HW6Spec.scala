@@ -177,6 +177,25 @@ class HW6Spec extends FlatSpec {
     assert(ans =:= result.get)
   }
   
+  "Meet Function" should "take the join of the function parameter" in {
+    val ffn1xs = TFunction(List(("a", TNumber), ("c", TString)), TString)
+    val tffn1 = TString
+    val rfn1t = TNumber
+    val fn1xs = List(("a", TNumber), ("c", TString))
+    val fn1t = TObj(Map("x" -> TNumber))
+    val tfn1 = TFunction(fn1xs, fn1t)
+    
+    val fn2xs = List(("a", TNumber), ("b", TString))
+    val fn2t = TObj(Map("x" -> TNumber, "y" -> TBool))
+    val tfn2 = TFunction(fn2xs, fn2t)
+    
+    val ans = TFunction(List(("a", TNumber)), TObj(Map("x" -> TNumber, "y" -> TBool)))
+    
+    val result = tfn2 &:& tfn1
+    println(result)
+    assert(ans =:= result.get)
+  }
+  
   // You probably want to write some tests for typeInfer and step.
   
   
