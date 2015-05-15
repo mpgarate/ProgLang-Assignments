@@ -237,6 +237,7 @@ class HW6Spec extends FlatSpec {
   // You probably want to write some tests for typeInfer and step.
   // maybe?  ¯\_(ツ)_/¯
   
+  //not checking anything at the moment 
   "assign" should "handle doassign.js case" in {
     val expr = Decl(
       MVar,
@@ -254,6 +255,78 @@ class HW6Spec extends FlatSpec {
     
     println(result)
   }
+  
+  "badassign" should "throw an error" in {
+    val exp = Decl (
+      MVar,
+      "o",
+      Obj (Map ("x" -> Obj (Map ("y" -> Num (0.0))))),
+      BinOp (
+        Seq,
+        BinOp (Assign, GetField (Var ("o"), "x"), Obj (Map ())),
+        GetField (GetField (Var ("o"), "x"), "y")))
+    try {
+      typeInfer(Map.empty, exp)
+      fail()
+    }
+    catch {
+      case _ =>
+    }
+  }
+  
+  "badassign2" should "typecheck properly" in {
+    val exp = Decl (
+      MVar,
+      "o",
+      Obj (Map ("x" -> Obj (Map ("y" -> Num (0.0))))),
+      Decl (
+        MConst,
+        "f",
+        Function (
+          None,
+          List ("o" -> TObj (Map ("x" -> TObj (Map ())))),
+          None,
+          BinOp (
+            Seq,
+            BinOp (Assign, GetField (Var ("o"), "x"), Obj (Map ())),
+            Undefined)),
+        BinOp (
+          Seq,
+          Call (Var ("f"), List (Var ("o"))),
+          GetField (GetField (Var ("o"), "x"), "y"))))
+    assert(TNumber == typeInfer(Map.empty, exp))
+  }
+  
+  "badassign2" should "throw run time error" in {
+    val exp = Decl (
+      MVar,
+      "o",
+      Obj (Map ("x" -> Obj (Map ("y" -> Num (0.0))))),
+      Decl (
+        MConst,
+        "f",
+        Function (
+          None,
+          List ("o" -> TObj (Map ("x" -> TObj (Map ())))),
+          None,
+          BinOp (
+            Seq,
+            BinOp (Assign, GetField (Var ("o"), "x"), Obj (Map ())),
+            Undefined)),
+        BinOp (
+          Seq,
+          Call (Var ("f"), List (Var ("o"))),
+          GetField (GetField (Var ("o"), "x"), "y"))))
+    try {
+      iterateStep(exp)
+      fail()
+    }
+    catch {
+      case _: DynamicTypeError => 
+    }
+  }
+  
+  
   
   
 }
