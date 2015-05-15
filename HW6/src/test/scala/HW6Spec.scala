@@ -203,6 +203,37 @@ class HW6Spec extends FlatSpec {
     assert(ans =:= result.get)
   }
   
+  "Join Obj" should "join two function objects" in {
+    val expr = Decl(MConst, "f",
+      If(
+        Bool(true),
+        Function(
+          None,
+          Nil,
+          Some(
+            TObj(
+              Map(
+                "x" -> TNumber,
+                "y" -> TObj(Map("w" -> TBool)),
+                "z" -> TNumber))),
+          Null),
+        Function(
+          None,
+          Nil,
+          Some(
+            TObj(
+              Map("x" -> TNumber, "y" -> TObj(Map("w" -> TNumber))))),
+          Null)),
+      Var("f"))
+      
+      val expected = TFunction (Nil, TObj (Map ("x" -> TNumber, "y" -> TObj (Map ()))))
+      
+      val result = typeInfer(Map.empty, expr)
+      
+      println("result: " + result)
+      
+      assert(expected == result)
+  }
   // You probably want to write some tests for typeInfer and step.
   
   
