@@ -324,6 +324,8 @@ class HW6Spec extends FlatSpec {
     catch {
       case _: DynamicTypeError => 
     }
+    
+    
   }
   
   
