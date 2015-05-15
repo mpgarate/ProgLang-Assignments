@@ -1,62 +1,129 @@
-interface Item {
-  iName: string;
-  iDescription: string;
-  iTime: number;
-  iAction: () => Undefined;
-};
-
 interface Node {
-  data: Item;
+  data: number;
   next: Node;
 };
 
 interface List {
-  add: (n: string, desc: string, t: number, a: () => Item ) => List;
+  add: (e: number) => List;
   remove: () => List;
-  foreach: (f: (e: Item) => Undefined) => List
+  foreach: (f: (e: number) => Undefined) => List
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 function newList(): List {
   interface ListRep {
     first: Node;
-    add: (e: Item) => List;
+    add: (e: number) => List;
     remove: () => List;
-    foreach: (f: (e: Item) => Undefined) => List
+    foreach: (f: (e: number) => Undefined) => List
   };
 
   function listClass(this: ListRep): ListRep {
     this.first = null;
-    this.add = function(n: string, desc: string, t: number, f: () => Item ) {
-      const e = {iName: n, iDescription: desc, iTime: t, iAction: f};
-      const n = {data: e, next: this.first};
-      this.first = n;
-      return this;
-    };
+    this.add = function(e: number) {
+        const n = {data: e, next: this.first};
+        this.first = n;
+        return this;
+      };
     this.remove = function() {
         const n = this.first;
         this.first = this.first.next;
         n.next = null;
         return this;
       };
-    this.foreach = function (f: (e: Item) => Undefined) {
-      function foreach(n: Node): Undefined {
-        (n === null) ? undefined : (f(n.data), foreach(n.next));
+    this.foreach = function (f: (e: number) => Undefined) {
+        function foreach(n: Node): Undefined {
+          (n === null) ? undefined : (f(n.data), foreach(n.next));
+        };
+        foreach(this.first);
+        return this;
       };
-      foreach(this.first);
-      return this;
-    };
     return this;
   };
   const list = {
       first: null,
-      add: function(n: string, desc: string, t: number, a: () => Item): List { return null; },
+      add: function(e: number): List { return null; },
       remove: function(): List { return null; },
-      foreach: function(f: (e: Item) => Undefined): List {return null; }
+      foreach: function(f: (e: number) => Undefined): List {return null; }
     };
   return listClass(list);
 };
 
 const l = newList();
-l.add("Make Coffee", "Make the coffee for breakfast", 2, function(){ console.log("brewing coffee"); });
-l.add("Create to do list", "Create another to do list assignment", 3, function() { console.log("creating to do list");} );
-l.foreach(function(e: Item) { e.iAction; } );
+l.add(1).add(4).add(5).foreach(function(e: number) { console.log(e); });
+
+
+
+interface CounterRep { x: number };
+
+interface Counter {
+  get: () => number;
+  inc: () => Undefined
+};
+
+interface ResetCounter {
+  get: () => number;
+  inc: () => Undefined;
+  reset: () => Undefined;
+};
+
+const counterClass = function(rep: CounterRep): Counter {
+  return {
+    get: function() { return rep.x; },
+    inc: function() { rep.x = rep.x + 1; return undefined; }
+  }
+};
+
+const newCounter = function() {
+  const rep = {x: 0};
+  return counterClass(rep)
+};
+
+
+const resetCounterClass = function(rep: CounterRep) {
+  const _super = counterClass(rep);
+  return {
+    get: _super.get,
+    inc: _super.inc,
+    reset: function() { rep.x = 0; return undefined; }
+  }
+};
+
+const newResetCounter = function() {
+  const rep = {x: 0};
+  return resetCounterClass(rep);
+};
+
+const counterClient =
+  function(c: Counter) {
+    c.inc();
+    c.inc();
+    c.inc();
+    return undefined;
+  };
+
+const counter = newResetCounter();
+console.log(counter.get());
+counterClient(counter);
+console.log(counter.get());
+counter.reset();
+console.log(counter.get());
+
+interface Hungry (x: number) => Hungry;
+
+function yum(x: number): Hungry {
+  return yum;
+};
+
+yum(0)(1)(2);
