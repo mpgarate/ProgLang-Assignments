@@ -408,8 +408,7 @@ object HW6 extends js.util.JsApp {
       case BinOp(Assign, e1, e2) => 
         val t1 = typLE(e1)
         val t2 = typ(e2)
-        println("t1: " + t1 + " t2: " + t2)
-        if(t2<:<t1) t2
+        if(t2 <:< t1) t2
         else err(t2, e2)
         //t1 subtype of t2
 
@@ -465,7 +464,7 @@ object HW6 extends js.util.JsApp {
       case Decl(mut, y, e1, e2) => Decl(mut, y, subst(e1), if (x == y) e2 else subst(e2))
       case Function(p, xs, tann, e1) =>
         if (p == Some(x) || (xs exists (_._1 == x))) e
-        else Function(p, xs, tann, subst(e1))      
+        else Function(p, xs, tann, subst(e1))
       case Call(e1, args) => Call(subst(e1), args map subst)
       case Obj(fs) => Obj(fs mapValues (subst(_)))
       case GetField(e, f) => GetField(subst(e), f)
@@ -534,8 +533,8 @@ object HW6 extends js.util.JsApp {
           case Function(p, txs, _, e1) => {
             val e1p = (txs, es).zipped.foldRight(e1){
               //substitute each parameter into the expression
-              (param, en) => println("param: " + param + "\nen: " + en); param match {
-                case ((str, _), ei) => println("in substitution\n substituting in: " + en +  "\nreplacing: " + str + "\n with: " + ei); substitute(en, str, ei)
+              (param, en) => param match {
+                case ((str, _), ei) => substitute(en, str, ei)
               }
             }
             p match {
@@ -615,7 +614,6 @@ object HW6 extends js.util.JsApp {
 
       //SearchCall2 
       case Call(v1, args) if (isValue(v1)) =>
-        println("in searchCall2")
         for (argp <- stepFirst(args)) yield Call(v1, argp)
         
       // SearchCall1
