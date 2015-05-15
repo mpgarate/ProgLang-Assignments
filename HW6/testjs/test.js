@@ -1,69 +1,3 @@
-interface Node {
-  data: number;
-  next: Node;
-};
-
-interface List {
-  add: (e: number) => List;
-  remove: () => List;
-  foreach: (f: (e: number) => Undefined) => List
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-function newList(): List {
-  interface ListRep {
-    first: Node;
-    add: (e: number) => List;
-    remove: () => List;
-    foreach: (f: (e: number) => Undefined) => List
-  };
-
-  function listClass(this: ListRep): ListRep {
-    this.first = null;
-    this.add = function(e: number) {
-        const n = {data: e, next: this.first};
-        this.first = n;
-        return this;
-      };
-    this.remove = function() {
-        const n = this.first;
-        this.first = this.first.next;
-        n.next = null;
-        return this;
-      };
-    this.foreach = function (f: (e: number) => Undefined) {
-        function foreach(n: Node): Undefined {
-          (n === null) ? undefined : (f(n.data), foreach(n.next));
-        };
-        foreach(this.first);
-        return this;
-      };
-    return this;
-  };
-  const list = {
-      first: null,
-      add: function(e: number): List { return null; },
-      remove: function(): List { return null; },
-      foreach: function(f: (e: number) => Undefined): List {return null; }
-    };
-  return listClass(list);
-};
-
-const l = newList();
-l.add(1).add(4).add(5).foreach(function(e: number) { console.log(e); });
-
-
 
 interface CounterRep { x: number };
 
@@ -127,4 +61,57 @@ function yum(x: number): Hungry {
   return yum;
 };
 
+interface Node {
+  data: (x: number) => Hungry;
+  next: Node;
+};
+
+interface List {
+  add: (e: (x: number) => Hungry) => List;
+  remove: () => List;
+  foreach: (f: (e: (x: number) => Hungry) => Undefined) => List
+};
+
+function newList(): List {
+  interface ListRep {
+    first: Node;
+    add: (e: (x: number) => Hungry) => List;
+    remove: () => List;
+    foreach: (f: (e: (x: number) => Hungry) => Undefined) => List
+  };
+
+  function listClass(this: ListRep): ListRep {
+    this.first = null;
+    this.add = function(e: (x: number) => Hungry) {
+        const n = {data: e, next: this.first};
+        this.first = n;
+        return this;
+      };
+    this.remove = function() {
+        const n = this.first;
+        this.first = this.first.next;
+        n.next = null;
+        return this;
+      };
+    this.foreach = function (f: (e: (x: number) => Hungry) => Undefined) {
+        function foreach(n: Node): Undefined {
+          (n === null) ? undefined : (f(n.data), foreach(n.next));
+        };
+        foreach(this.first);
+        return this;
+      };
+    return this;
+  };
+  const list = {
+      first: null,
+      add: function(e: (x: number) => Hungry): List { return null; },
+      remove: function(): List { return null; },
+      foreach: function(f: (e: (x: number) => Hungry) => Undefined): List {return null; }
+    };
+  return listClass(list);
+};
+
+const l = newList();
+
 yum(0)(1)(2)(4);
+l.add(yum(0));
