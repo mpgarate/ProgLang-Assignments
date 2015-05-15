@@ -202,28 +202,20 @@ object HW6 extends js.util.JsApp {
       // MeetObj -- work in progress (probably incomplete)
       case (TObj(sfs), TObj(tfs)) =>
         // MeetObjNull
-        // this should check the join for any fields of the same name.
-        // if the join is empty, then this case must return TNull. 
-        // Otherwise, evaluate the MeetObj rule below. 
-        val fields = sfs.map({ case (x, t1) => 
+        for ((x, t1) <- sfs) yield {
           tfs.get(x) match {
             case Some(t2) => {
-              println("t1: " + t1)
-              println("t2: " + t2)
-
-              // I can't figure out why none of these print statements are reached.
-              t2|:|t1 match {
-                case Some(t) => println("woohoo in here!"); (x -> t)
-                case None => println("wtf there is none -.- "); err(t2, tfs)
+              t1 |:| t2 match {
+                // do nothing for found join
+                case Some(_) => 
+                // return TNull immediately when no join found
+                case None => return State.some(TNull)
               }
-              join(t2, t1).orElse({println("got here 1"); State.none})
-              join(t2, t1).andThen { x => println("got here 2"); State.none }
-              join(t2, t1).getOrElse({ println("got here 3"); State.none })
-              join(t2, t1).map { typ: Typ => println("got here 4"); State.none }
             }
-            case None => (x -> t1)
+            // do nothing for unique fieldnames
+            case None => 
           }
-        })
+        }
         
         // MeetObj
         val sufs = (sfs foldLeft State.some[Cache, Map[String, Typ]](Map.empty)) {
