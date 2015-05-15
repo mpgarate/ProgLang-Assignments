@@ -114,16 +114,17 @@ const counterClient =
   };
 
 const counter = newResetCounter();
-console.log(counter.get());
 counterClient(counter);
-console.log(counter.get());
 counter.reset();
-console.log(counter.get());
+
 
 interface Hungry (x: number) => Hungry;
 
 function yum(x: number): Hungry {
+  console.log("Hungry...");
+  counter.inc();
+  console.log(counter.get());
   return yum;
 };
 
-yum(0)(1)(2);
+yum(0)(1)(2)(4);
