@@ -114,4 +114,7 @@ function newList(): List {
 const l = newList();
 
 yum(0)(1)(2)(4);
-l.add(yum(0));
+counter.reset();
+l.add(yum(0)(9));
+counter.reset();
+yum(1);
